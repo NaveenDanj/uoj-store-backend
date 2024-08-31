@@ -4,9 +4,18 @@ import (
 	"fmt"
 	"os"
 	core "peer-store/core/file_manager"
+	"peer-store/core/pki"
 )
 
 func main() {
+	pki_test()
+}
+
+func pki_test() {
+	pki.Generate_pki_key_pair()
+}
+
+func file_chunk_test() {
 	currentDir, err := os.Getwd()
 	if err != nil {
 		panic("Error while reading the file path. Please check your file path")
@@ -20,5 +29,4 @@ func main() {
 	}
 
 	fmt.Println(l)
-
 }

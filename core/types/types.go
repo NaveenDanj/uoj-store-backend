@@ -7,3 +7,8 @@ type FileChunkMetaData struct {
 	FileInfo  fs.FileInfo
 	Extension string
 }
+
+type RSA struct {
+	PubliKeyPath   string
+	PrivateKeyPath string
+}
