@@ -101,6 +101,28 @@ func FileMerger(file_chunk_list []string, metaData types.FileChunkMetaData) erro
 
 }
 
-func chunkerRollbackService() {
-	return
+func ChunkerRollbackService(base_dir string) {
+
+	cwd := base_dir
+
+	err := filepath.Walk(cwd, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		// Check if the file has the desired extension
+		if !info.IsDir() && filepath.Ext(path) == ".part" {
+			fmt.Println(path)
+			err := os.Remove(path)
+
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+
 }
