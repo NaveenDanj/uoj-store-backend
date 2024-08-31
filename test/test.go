@@ -8,7 +8,8 @@ import (
 )
 
 func main() {
-	pki_test()
+	// pki_test()
+	file_chunk_test()
 }
 
 func pki_test() {
@@ -21,12 +22,17 @@ func file_chunk_test() {
 		panic("Error while reading the file path. Please check your file path")
 	}
 	baseDir := currentDir + "/test/"
-	file_path_string := baseDir + "test.pdf"
+	file_path_string := baseDir + "lofo.png"
 	l, err := core.FileSpliterService(file_path_string, 10, baseDir)
 
 	if err != nil {
 		fmt.Println("Error while chunking files : " + err.Error())
 	}
 
-	fmt.Println(l)
+	err = core.FileMerger(l.Sequence, l)
+
+	if err != nil {
+		fmt.Errorf(err.Error())
+	}
+
 }

@@ -28,6 +28,7 @@ func FileSpliterService(path string, numberOfChunks int64, outDir string) (types
 	}
 
 	partSize := fileInfo.Size() / numberOfChunks
+	original_name := fileInfo.Name()
 	baseName := uuid.New().String()
 	buffer := make([]byte, partSize)
 	fileExtension := filepath.Ext(file.Name())
@@ -58,15 +59,48 @@ func FileSpliterService(path string, numberOfChunks int64, outDir string) (types
 	}
 
 	chunkData := types.FileChunkMetaData{
-		Sequence:  chunckFileList,
-		FileInfo:  fileInfo,
-		Extension: fileExtension,
+		Sequence:     chunckFileList,
+		FileInfo:     fileInfo,
+		Extension:    fileExtension,
+		OriginalName: original_name,
 	}
 
 	return chunkData, nil
 
 }
 
-func ChunkerRollbackService() {
+func FileMerger(file_chunk_list []string, metaData types.FileChunkMetaData) error {
+
+	// create new file for the merged file
+	newFile, err := os.Create(metaData.OriginalName)
+
+	if err != nil {
+		return err
+	}
+
+	defer newFile.Close()
+
+	for _, path := range file_chunk_list {
+
+		chunkFile, err := os.Open(path)
+		if err != nil {
+			return fmt.Errorf("failed to open chunk file %s: %w", path, err)
+		}
+
+		_, err = io.Copy(newFile, chunkFile)
+		if err != nil {
+			chunkFile.Close() // Ensure chunk file is closed before returning
+			return fmt.Errorf("failed to write chunk %s to output file: %w", path, err)
+		}
+
+		chunkFile.Close()
+
+	}
+
+	return nil
+
+}
+
+func chunkerRollbackService() {
 	return
 }
