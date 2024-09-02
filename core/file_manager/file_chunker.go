@@ -29,7 +29,7 @@ func FileSpliterService(path string, numberOfChunks int64, outDir string) (types
 
 	partSize := fileInfo.Size() / numberOfChunks
 	original_name := fileInfo.Name()
-	baseName := uuid.New().String()
+	// baseName := uuid.New().String()
 	buffer := make([]byte, partSize)
 	fileExtension := filepath.Ext(file.Name())
 
@@ -41,7 +41,7 @@ func FileSpliterService(path string, numberOfChunks int64, outDir string) (types
 			return types.FileChunkMetaData{}, fmt.Errorf("failed to read file: %w", err)
 		}
 
-		partFileName := fmt.Sprintf("%s%d.part", baseName, i+1)
+		partFileName := fmt.Sprintf("%s.part", uuid.New().String())
 		partFilePath := filepath.Join(outDir, partFileName)
 		partFile, err := os.Create(partFilePath)
 		chunckFileList = append(chunckFileList, partFilePath)
@@ -59,10 +59,11 @@ func FileSpliterService(path string, numberOfChunks int64, outDir string) (types
 	}
 
 	chunkData := types.FileChunkMetaData{
-		Sequence:     chunckFileList,
-		FileInfo:     fileInfo,
-		Extension:    fileExtension,
-		OriginalName: original_name,
+		Sequence:         chunckFileList,
+		FileInfo:         fileInfo,
+		Extension:        fileExtension,
+		OriginalName:     original_name,
+		DigitalSignature: make([]string, 0),
 	}
 
 	return chunkData, nil

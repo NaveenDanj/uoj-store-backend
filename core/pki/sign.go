@@ -64,8 +64,8 @@ func VerifySign(filepath string, signature []byte, publicKey *rsa.PublicKey) err
 
 }
 
-func PublicKeyEncryption(message string, publicKey *rsa.PublicKey) ([]byte, error) {
-	encryptedMessage, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, []byte(message))
+func PublicKeyEncryption(message []byte, publicKey *rsa.PublicKey) ([]byte, error) {
+	encryptedMessage, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, message)
 
 	if err != nil {
 		return nil, err

@@ -7,6 +7,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"os"
+	"peer-store/config"
 )
 
 func Generate_pki_key_pair() error {
@@ -20,6 +21,8 @@ func Generate_pki_key_pair() error {
 
 	err = SavePEMKey("private_key.pem", privateKey)
 
+	// encrypt private key and public key
+
 	if err != nil {
 		fmt.Errorf("error generating private key:", err.Error())
 	}
@@ -30,17 +33,23 @@ func Generate_pki_key_pair() error {
 		fmt.Errorf("error generating private key:", err.Error())
 	}
 
+	err = EncryptPemFile(config.CONFIG.PrivatePEMFilePath, config.CONFIG.PrivatePEMFilePath+".enc", config.CONFIG.PassPhrase)
+
+	if err != nil {
+		fmt.Errorf("error generating private key:", err.Error())
+	}
+
+	err = EncryptPemFile(config.CONFIG.PublicPEMFilePath, config.CONFIG.PublicPEMFilePath+".enc", config.CONFIG.PassPhrase)
+
+	if err != nil {
+		fmt.Errorf("error generating private key:", err.Error())
+	}
+
 	return nil
 
 }
 
-func LoadPrivateKey(filepath string) (*rsa.PrivateKey, error) {
-
-	keyData, err := os.ReadFile(filepath)
-
-	if err != nil {
-		return nil, err
-	}
+func LoadPrivateKey(keyData []byte) (*rsa.PrivateKey, error) {
 
 	block, _ := pem.Decode(keyData)
 	if block == nil || block.Type != "RSA PRIVATE KEY" {
@@ -56,12 +65,7 @@ func LoadPrivateKey(filepath string) (*rsa.PrivateKey, error) {
 
 }
 
-func LoadPublicKey(filename string) (*rsa.PublicKey, error) {
-
-	keyData, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read public key file: %w", err)
-	}
+func LoadPublicKey(keyData []byte) (*rsa.PublicKey, error) {
 
 	block, _ := pem.Decode(keyData)
 	if block == nil || block.Type != "RSA PUBLIC KEY" {

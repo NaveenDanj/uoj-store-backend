@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
@@ -18,6 +19,8 @@ func EncryptPemFile(filepath string, outputFilePath string, passphrase string) e
 	}
 
 	key := genKeyFromPassPhrase(passphrase)
+
+	fmt.Println(string(key))
 
 	encryptedData, err := encryptAESGCM(key, file)
 	if err != nil {
@@ -52,9 +55,9 @@ func DecryptPemFile(filepath string, passPhrase string) ([]byte, error) {
 }
 
 func genKeyFromPassPhrase(passPhrase string) []byte {
-	key := make([]byte, 32)
-	copy(key, []byte(passPhrase))
-	return key
+	// key := make([]byte, 32)
+	// copy(key, []byte(passPhrase))
+	return []byte(passPhrase)
 }
 
 func encryptAESGCM(key []byte, plainText []byte) ([]byte, error) {
@@ -96,4 +99,63 @@ func decryptAESGCM(key, ciphertext []byte) ([]byte, error) {
 	}
 
 	return plaintext, nil
+}
+
+func Encrypt(plainText, key []byte) ([]byte, error) {
+	// Create a new AES cipher with the given key
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create cipher: %w", err)
+	}
+
+	// Create a new GCM cipher mode instance
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create GCM: %w", err)
+	}
+
+	// Create a nonce (number used once) with the required size
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		return nil, fmt.Errorf("failed to generate nonce: %w", err)
+	}
+
+	// Encrypt the plain text and prepend the nonce
+	cipherText := gcm.Seal(nonce, nonce, plainText, nil)
+	return cipherText, nil
+}
+
+func Decrypt(cipherTextHex string, key []byte) ([]byte, error) {
+	// Decode the hex-encoded cipher text
+	cipherText, err := hex.DecodeString(cipherTextHex)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode cipher text: %w", err)
+	}
+
+	// Create a new AES cipher with the given key
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create cipher: %w", err)
+	}
+
+	// Create a new GCM cipher mode instance
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create GCM: %w", err)
+	}
+
+	// Split the nonce and the actual cipher text
+	nonceSize := gcm.NonceSize()
+	if len(cipherText) < nonceSize {
+		return nil, fmt.Errorf("cipher text too short")
+	}
+	nonce, cipherText := cipherText[:nonceSize], cipherText[nonceSize:]
+
+	// Decrypt the cipher text
+	plainText, err := gcm.Open(nil, nonce, cipherText, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt: %w", err)
+	}
+
+	return plainText, nil
 }
