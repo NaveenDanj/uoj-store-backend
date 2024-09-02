@@ -5,6 +5,7 @@ type Config struct {
 	PrivatePEMFilePath string
 	PublicPEMFilePath  string
 	PassPhrase         string
+	DatabaseName       string
 }
 
 var CONFIG = Config{
@@ -12,4 +13,5 @@ var CONFIG = Config{
 	PrivatePEMFilePath: "./private_key.pem",
 	PublicPEMFilePath:  "./public_key.pem",
 	PassPhrase:         "SunnyDayInJuly2024WithABreeze123",
+	DatabaseName:       "prod.db",
 }

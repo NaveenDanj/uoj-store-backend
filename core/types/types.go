@@ -9,3 +9,8 @@ type FileChunkMetaData struct {
 	OriginalName     string      `json:"originalName"`
 	DigitalSignature []string    `json:"digitalSignature"`
 }
+
+type FileUploadDTO struct {
+	FileChunkMetaData *FileChunkMetaData
+	Sequence          []string
+}

@@ -8,6 +8,7 @@ import (
 	"peer-store/config"
 	core "peer-store/core/file_manager"
 	"peer-store/core/pki"
+	"peer-store/core/types"
 )
 
 func LoadRSAKeys() (*rsa.PrivateKey, *rsa.PublicKey, error) {
@@ -89,14 +90,18 @@ func UploadFileAsChunk(filepath string) error {
 		partFile.Write(encrypted_data)
 
 	}
+	fileUploadDTO := types.FileUploadDTO{
+		FileChunkMetaData: &file_chunk_data,
+		Sequence:          file_chunk_data.Sequence,
+	}
 
-	jsonData, err := json.Marshal(file_chunk_data)
+	outData, err := json.Marshal(fileUploadDTO)
 
 	if err != nil {
 		fmt.Errorf("Error converting struct to JSON: %v", err)
 	}
 
-	out, err := pki.Encrypt(jsonData, []byte(config.CONFIG.PassPhrase))
+	out, err := pki.Encrypt(outData, []byte(config.CONFIG.PassPhrase))
 
 	if err != nil {
 		fmt.Errorf(err.Error())
@@ -107,4 +112,5 @@ func UploadFileAsChunk(filepath string) error {
 	// call server to store file chunks in the main-net and return file-meta data and main-net router map
 
 	return nil
+
 }
