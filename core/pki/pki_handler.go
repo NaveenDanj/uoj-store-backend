@@ -79,7 +79,7 @@ func LoadPublicKey(filename string) (*rsa.PublicKey, error) {
 	}
 
 	return rsaPubKey, nil
-	
+
 }
 
 func SavePEMKey(filename string, key *rsa.PrivateKey) error {

@@ -8,8 +8,3 @@ type FileChunkMetaData struct {
 	Extension    string
 	OriginalName string
 }
-
-type RSA struct {
-	PubliKeyPath   string
-	PrivateKeyPath string
-}

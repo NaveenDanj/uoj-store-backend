@@ -109,7 +109,7 @@ func ChunkerRollbackService(base_dir string) {
 		if err != nil {
 			return err
 		}
-		// Check if the file has the desired extension
+
 		if !info.IsDir() && filepath.Ext(path) == ".part" {
 			fmt.Println(path)
 			err := os.Remove(path)

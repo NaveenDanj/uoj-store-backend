@@ -9,22 +9,23 @@ import (
 
 func main() {
 	// pki_test()
+	FileEncryptTest()
 	// file_chunk_test()
 
-	currentDir, err := os.Getwd()
-	if err != nil {
-		panic("Error while reading the file path. Please check your file path")
-	}
-	baseDir := currentDir + "/test/"
+	// currentDir, err := os.Getwd()
+	// if err != nil {
+	// 	panic("Error while reading the file path. Please check your file path")
+	// }
+	// baseDir := currentDir + "/test/"
 
-	core.ChunkerRollbackService(baseDir)
+	// core.ChunkerRollbackService(baseDir)
 }
 
-func pki_test() {
+func Pki_test() {
 	pki.Generate_pki_key_pair()
 }
 
-func file_chunk_test() {
+func File_chunk_test() {
 	currentDir, err := os.Getwd()
 	if err != nil {
 		panic("Error while reading the file path. Please check your file path")
@@ -42,5 +43,43 @@ func file_chunk_test() {
 	if err != nil {
 		fmt.Errorf(err.Error())
 	}
+
+}
+
+func SignFileTest() {
+
+}
+
+func FileEncryptTest() {
+	// get public key
+	pub_key, err := pki.LoadPublicKey("./public_key.pem")
+
+	if err != nil {
+		fmt.Errorf("Error while reading public key pem file")
+	}
+
+	out, err := pki.PublicKeyEncryption("hello world", pub_key)
+
+	if err != nil {
+		fmt.Errorf(err.Error())
+	}
+
+	fmt.Println(string(out))
+
+	fmt.Println("---------------------------")
+
+	pri_key, err := pki.LoadPrivateKey("./private_key.pem")
+
+	if err != nil {
+		fmt.Errorf(err.Error())
+	}
+
+	decrypted, err := pki.DecryptWithPrivateKey(out, pri_key)
+
+	if err != nil {
+		fmt.Errorf(err.Error())
+	}
+
+	fmt.Println("output is => ", decrypted)
 
 }
