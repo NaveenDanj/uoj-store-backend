@@ -1,0 +1,14 @@
+{
+    "_id": "60cbc66b-0eed-464b-bd9c-59e1210485d3",
+    "name": "local_env",
+    "default": true,
+    "sortNum": 10000,
+    "created": "2024-09-03T15:34:16.090Z",
+    "modified": "2024-09-03T15:34:16.090Z",
+    "data": [
+        {
+            "name": "app_url",
+            "value": "http://localhost:5001"
+        }
+    ]
+}

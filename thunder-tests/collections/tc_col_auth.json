@@ -1,0 +1,31 @@
+{
+    "_id": "dded48cf-f41c-42f3-94d5-24af1f6ad856",
+    "colName": "auth",
+    "created": "2024-09-03T15:47:04.858Z",
+    "sortNum": 10000,
+    "folders": [],
+    "requests": [
+        {
+            "_id": "e28d7058-e6b2-4df8-8bd2-2774296ef6de",
+            "colId": "dded48cf-f41c-42f3-94d5-24af1f6ad856",
+            "containerId": "",
+            "name": "sign-in",
+            "url": "{{app_url}}/api/auth/sign-in",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2024-09-03T15:47:18.993Z",
+            "modified": "2024-09-03T15:48:33.031Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"name\" : \"Naveen Hettiwaththa2\",\n  \"email\" : \"naveenhettiwaththa2@gmail.com\",\n  \"password\" : \"naveen123\",\n  \"passphrase\" : \"naveen is my name. can you see m\"\n}",
+                "form": []
+            }
+        }
+    ]
+}

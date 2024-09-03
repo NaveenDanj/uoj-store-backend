@@ -1,6 +1,8 @@
 package router
 
 import (
+	"peer-store/handlers"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +19,7 @@ func SetupRouter() *gin.Engine {
 	// User-related routes
 	api := r.Group("/api/auth")
 	{
-		// api.GET("/users", handlers.GetUsers)
+		api.POST("/sign-in", handlers.CreateNewUser)
 		// api.POST("/users", handlers.CreateUser)
 		// api.GET("/users/:id", handlers.GetUser)
 		// api.PUT("/users/:id", handlers.UpdateUser)

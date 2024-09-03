@@ -90,6 +90,7 @@ func UploadFileAsChunk(filepath string) error {
 		partFile.Write(encrypted_data)
 
 	}
+
 	fileUploadDTO := types.FileUploadDTO{
 		FileChunkMetaData: &file_chunk_data,
 		Sequence:          file_chunk_data.Sequence,

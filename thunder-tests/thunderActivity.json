@@ -1,0 +1,19 @@
+[
+    {
+        "_id": "36481d6a-6b80-45b8-9534-cad7aaec9a07",
+        "colId": "history",
+        "containerId": "",
+        "name": "http://localhost:5001/api/v1/auth/sign-in",
+        "url": "{{app_url}}/api/auth/sign-in",
+        "method": "POST",
+        "sortNum": 0,
+        "created": "2024-09-03T14:49:34.852Z",
+        "modified": "2024-09-03T15:40:01.790Z",
+        "headers": [],
+        "body": {
+            "type": "json",
+            "raw": "{\n  \"name\" : \"Naveen Hettiwaththa2\",\n  \"email\" : \"naveenhettiwaththa2@gmail.com\",\n  \"password\" : \"naveen12\",\n  \"passphrase\" : \"naveen is my name. can you see m\"\n}",
+            "form": []
+        }
+    }
+]
