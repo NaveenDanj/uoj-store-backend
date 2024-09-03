@@ -1,0 +1,17 @@
+# .air.toml
+
+# Configuration file for Air
+[build]
+bin = "./cmd/main.exe" # Output binary
+cmd = "go build -o ./cmd/main.exe ./cmd/main.go" # Specify the exact file path
+log = "air.log" 
+
+[watch]
+# Set directories to watch
+excludes = ["test"]
+includes = ["."]
+
+[logger]
+# Configure logging
+color = true
+timestamp = true

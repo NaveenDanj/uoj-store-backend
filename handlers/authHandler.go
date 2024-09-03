@@ -33,6 +33,6 @@ func CreateNewUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User account created successfully", "data": requestJSON})
+	c.JSON(http.StatusOK, gin.H{"message": "User account created successfully", "user": requestJSON})
 
 }

@@ -14,7 +14,7 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2024-09-03T15:47:18.993Z",
-            "modified": "2024-09-03T15:48:33.031Z",
+            "modified": "2024-09-03T16:11:47.779Z",
             "headers": [
                 {
                     "name": "Content-Type",
@@ -23,7 +23,7 @@
             ],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"name\" : \"Naveen Hettiwaththa2\",\n  \"email\" : \"naveenhettiwaththa2@gmail.com\",\n  \"password\" : \"naveen123\",\n  \"passphrase\" : \"naveen is my name. can you see m\"\n}",
+                "raw": "{\n  \"name\" : \"Naveen Hettiwaththa2\",\n  \"email\" : \"naveenhettiwaththa@gmail.com\",\n  \"password\" : \"naveen123\",\n  \"passphrase\" : \"naveen is my name. can you see m\"\n}",
                 "form": []
             }
         }
