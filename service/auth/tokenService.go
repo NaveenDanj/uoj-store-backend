@@ -24,6 +24,7 @@ func GenerateJWT(userId uint, email string) (string, error) {
 	}
 
 	return tokenString, nil
+
 }
 
 func VerifyJWT(tokenString string) (string, string, error) {

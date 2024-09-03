@@ -33,6 +33,12 @@ func CreateNewUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User account created successfully", "user": requestJSON})
+	authToken, err := auth.GenerateJWT(user.ID, user.Email)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":   "User account created successfully",
+		"user":      requestJSON,
+		"authToken": authToken,
+	})
 
 }
