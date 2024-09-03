@@ -6,6 +6,7 @@ type Config struct {
 	PublicPEMFilePath  string
 	PassPhrase         string
 	DatabaseName       string
+	AppSecret          []byte
 }
 
 var CONFIG = Config{
@@ -14,4 +15,5 @@ var CONFIG = Config{
 	PublicPEMFilePath:  "./public_key.pem",
 	PassPhrase:         "SunnyDayInJuly2024WithABreeze123",
 	DatabaseName:       "prod.db",
+	AppSecret:          []byte("my_sample_app_secret"),
 }
