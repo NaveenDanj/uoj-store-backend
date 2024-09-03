@@ -1,26 +1,37 @@
 package db
 
 import (
-	"fmt"
+	"log"
 	"peer-store/config"
 	"peer-store/models"
+	"sync"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
-func SetupDatabase() (*gorm.DB, error) {
-	// Connect to SQLite database (or create it if it doesn't exist)
-	db, err := gorm.Open(sqlite.Open(config.CONFIG.DatabaseName), &gorm.Config{})
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database: %w", err)
-	}
+var (
+	instance *gorm.DB
+	once     sync.Once
+)
 
-	// Auto-migrate the models
-	err = db.AutoMigrate(&models.User{})
-	if err != nil {
-		return nil, fmt.Errorf("failed to migrate database: %w", err)
-	}
+func Setup() {
+	once.Do(func() { // Ensure the instance is created only once
+		db, err := gorm.Open(sqlite.Open(config.CONFIG.DatabaseName), &gorm.Config{})
+		if err != nil {
+			log.Fatalf("failed to connect database: %v", err)
+		}
 
-	return db, nil
+		// Migrate the schema if needed
+		db.AutoMigrate(&models.User{})
+
+		instance = db
+	})
+}
+
+func GetDB() *gorm.DB {
+	if instance == nil {
+		log.Fatal("Database is not initialized. Please call db.Setup() first.")
+	}
+	return instance
 }
