@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"peer-store/core/pki"
 	"peer-store/db"
 	"peer-store/dto"
 	"peer-store/models"
@@ -27,11 +28,20 @@ func CreateNewUser(userDTO *dto.UserRequestDTO) (models.User, error) {
 		return models.User{}, errors.New("internal server error")
 	}
 
+	// generate keys
+	privateKeyPath, pubKey, err := pki.GeneratePkiKeyPair(userDTO.PassPhrase)
+
+	if err != nil {
+		return models.User{}, errors.New("internal server error")
+	}
+
 	newUser := models.User{
-		Name:       userDTO.Name,
-		Email:      userDTO.Email,
-		PassPhrase: string(hashedPassPhrase),
-		Password:   string(hashedPassword),
+		Name:           userDTO.Name,
+		Email:          userDTO.Email,
+		PassPhrase:     string(hashedPassPhrase),
+		Password:       string(hashedPassword),
+		PubKey:         pubKey,
+		PrivateKeyPath: privateKeyPath,
 	}
 
 	if err := db.GetDB().Create(&newUser).Error; err != nil {

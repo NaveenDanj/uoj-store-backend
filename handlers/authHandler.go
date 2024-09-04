@@ -18,6 +18,8 @@ func CreateNewUser(c *gin.Context) {
 		return
 	}
 
+	// Generate key pairs and store public key on the user table and private key on the backend
+
 	user, err := auth.CreateNewUser(&requestJSON)
 
 	if err != nil && user.Email != "" {
@@ -35,6 +37,13 @@ func CreateNewUser(c *gin.Context) {
 	}
 
 	authToken, err := auth.GenerateJWT(user.ID, user.Email)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":   "User account created successfully",

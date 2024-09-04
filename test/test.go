@@ -31,7 +31,7 @@ func main() {
 }
 
 func Pki_test() {
-	pki.Generate_pki_key_pair()
+	pki.GeneratePkiKeyPair("hello")
 }
 
 func File_chunk_test() {

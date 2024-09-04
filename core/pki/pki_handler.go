@@ -7,45 +7,40 @@ import (
 	"encoding/pem"
 	"fmt"
 	"os"
-	"peer-store/config"
+
+	"github.com/google/uuid"
 )
 
-func Generate_pki_key_pair() error {
+func GeneratePkiKeyPair(passPhrase string) (string, string, error) {
 
 	privateKey, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
-		fmt.Errorf("error generating private key:", err)
+		return "", "", fmt.Errorf("error generating private key: %s", err)
 	}
 
 	publicKey := &privateKey.PublicKey
 
-	err = SavePEMKey("private_key.pem", privateKey)
+	privatePemFilePath := "./disk/keys/" + uuid.New().String() + ".pem"
 
-	// encrypt private key and public key
-
-	if err != nil {
-		fmt.Errorf("error generating private key:", err.Error())
+	if err := SavePEMKey(privatePemFilePath, privateKey); err != nil {
+		return "", "", fmt.Errorf("error generating private key: %s", err.Error())
 	}
 
-	err = SavePublicPEMKey("public_key.pem", publicKey)
-
-	if err != nil {
-		fmt.Errorf("error generating private key:", err.Error())
+	if err := EncryptPemFile(privatePemFilePath, privatePemFilePath+".enc", passPhrase); err != nil {
+		return "", "", fmt.Errorf("error encrypting private key: %s", err.Error())
 	}
 
-	err = EncryptPemFile(config.CONFIG.PrivatePEMFilePath, config.CONFIG.PrivatePEMFilePath+".enc", config.CONFIG.PassPhrase)
+	pubKey, err := PublicKeyToBytes(publicKey)
 
 	if err != nil {
-		fmt.Errorf("error generating private key:", err.Error())
+		return "", "", fmt.Errorf("error encrypting private key: %s", err.Error())
 	}
 
-	err = EncryptPemFile(config.CONFIG.PublicPEMFilePath, config.CONFIG.PublicPEMFilePath+".enc", config.CONFIG.PassPhrase)
-
-	if err != nil {
-		fmt.Errorf("error generating private key:", err.Error())
+	if err := os.Remove(privatePemFilePath); err != nil {
+		return "", "", fmt.Errorf("error deleting pem file: %s", err.Error())
 	}
 
-	return nil
+	return privatePemFilePath, string(pubKey), nil
 
 }
 
@@ -111,18 +106,11 @@ func SavePEMKey(filename string, key *rsa.PrivateKey) error {
 
 }
 
-func SavePublicPEMKey(filename string, key *rsa.PublicKey) error {
-
-	file, err := os.Create(filename)
-	if err != nil {
-		return fmt.Errorf("error creating file: %s", err.Error())
-	}
-	defer file.Close()
+func PublicKeyToBytes(key *rsa.PublicKey) ([]byte, error) {
 
 	pubkeyBytes, err := x509.MarshalPKIXPublicKey(key)
 	if err != nil {
-		return fmt.Errorf("error marshalling public key:", err)
-
+		return nil, fmt.Errorf("error marshalling public key:", err)
 	}
 
 	publicKeyPEM := pem.EncodeToMemory(
@@ -132,13 +120,6 @@ func SavePublicPEMKey(filename string, key *rsa.PublicKey) error {
 		},
 	)
 
-	_, err = file.Write(publicKeyPEM)
-
-	if err != nil {
-		return fmt.Errorf("error writing public key to file:", err)
-
-	}
-
-	return nil
+	return publicKeyPEM, nil
 
 }
