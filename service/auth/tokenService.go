@@ -42,12 +42,8 @@ func VerifyJWT(tokenString string) (string, string, error) {
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 
-		userID, ok := claims["user_id"].(string)
-
-		if !ok {
-			return "", "", fmt.Errorf("invalid user ID claim")
-		}
-
+		userID := fmt.Sprintf("%v", claims["user_id"])
+		
 		userEmail, ok := claims["user_email"].(string)
 
 		if !ok {

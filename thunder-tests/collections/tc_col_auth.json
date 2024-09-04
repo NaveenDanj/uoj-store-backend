@@ -48,6 +48,27 @@
                 "raw": "{\n  \"email\" : \"naveenhettiwaththa@gmail.com\",\n  \"password\" : \"naveen123\"\n}",
                 "form": []
             }
+        },
+        {
+            "_id": "b4dab24f-42dd-42a8-9f3a-8861bd16206d",
+            "colId": "dded48cf-f41c-42f3-94d5-24af1f6ad856",
+            "containerId": "",
+            "name": "get-current-user",
+            "url": "{{app_url}}/api/auth/current-user",
+            "method": "GET",
+            "sortNum": 30000,
+            "created": "2024-09-04T13:36:21.221Z",
+            "modified": "2024-09-04T14:06:41.884Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                },
+                {
+                    "name": "Authorization",
+                    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjgwNTAyNDcsImlhdCI6MTcyNTQ1ODI0NywidXNlcl9lbWFpbCI6Im5hdmVlbmhldHRpd2F0aHRoYUBnbWFpbC5jb20iLCJ1c2VyX2lkIjoyfQ.twIr1CHPsMg99bEmx-807diDghdcT0RX5-yHH52ORf4"
+                }
+            ]
         }
     ]
 }

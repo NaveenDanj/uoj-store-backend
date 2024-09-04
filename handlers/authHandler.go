@@ -86,3 +86,13 @@ func UserSignIn(c *gin.Context) {
 	})
 
 }
+
+func GetCurrentUser(c *gin.Context) {
+
+	user, _ := c.Get("currentUser")
+
+	c.JSON(http.StatusOK, gin.H{
+		"user": user,
+	})
+
+}

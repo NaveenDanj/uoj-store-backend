@@ -2,6 +2,7 @@ package router
 
 import (
 	"peer-store/handlers"
+	"peer-store/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,6 +22,7 @@ func SetupRouter() *gin.Engine {
 	{
 		api.POST("/sign-up", handlers.CreateNewUser)
 		api.POST("/sign-in", handlers.UserSignIn)
+		api.GET("/current-user", middlewares.UserAuthRequired(), handlers.GetCurrentUser)
 		// api.GET("/users/:id", handlers.GetUser)
 		// api.PUT("/users/:id", handlers.UpdateUser)
 		// api.DELETE("/users/:id", handlers.DeleteUser)

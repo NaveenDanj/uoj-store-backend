@@ -14,20 +14,23 @@ func UserAuthRequired() gin.HandlerFunc {
 
 		if authToken == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated"})
+			c.Abort()
 			return
 		}
 
 		_, email, err := auth.VerifyJWT(authToken)
 
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated"})
+			c.Abort()
 			return
 		}
 
 		user, err := auth.GetUserByEmail(email)
 
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated"})
+			c.Abort()
 			return
 		}
 
