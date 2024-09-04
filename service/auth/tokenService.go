@@ -3,6 +3,8 @@ package auth
 import (
 	"fmt"
 	"peer-store/config"
+	"peer-store/db"
+	"peer-store/models"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -20,6 +22,16 @@ func GenerateJWT(userId uint, email string) (string, error) {
 
 	tokenString, err := token.SignedString(config.CONFIG.AppSecret)
 	if err != nil {
+		return "", err
+	}
+
+	tokenRecord := models.AccessToken{
+		UserId: userId,
+		Token:  tokenString,
+		Blockd: false,
+	}
+
+	if err := db.GetDB().Create(&tokenRecord).Error; err != nil {
 		return "", err
 	}
 
@@ -43,7 +55,7 @@ func VerifyJWT(tokenString string) (string, string, error) {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 
 		userID := fmt.Sprintf("%v", claims["user_id"])
-		
+
 		userEmail, ok := claims["user_email"].(string)
 
 		if !ok {

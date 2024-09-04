@@ -24,6 +24,7 @@ func Setup() {
 
 		// Migrate the schema if needed
 		db.AutoMigrate(&models.User{})
+		db.AutoMigrate(&models.AccessToken{})
 
 		instance = db
 	})
