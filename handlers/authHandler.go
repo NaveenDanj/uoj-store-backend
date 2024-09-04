@@ -96,3 +96,21 @@ func GetCurrentUser(c *gin.Context) {
 	})
 
 }
+
+func Logout(c *gin.Context) {
+
+	authToken := c.GetHeader("Authorization")
+	err := auth.BlockToken(authToken)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Logout success!",
+	})
+
+}

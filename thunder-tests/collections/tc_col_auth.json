@@ -14,7 +14,7 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2024-09-03T15:47:18.993Z",
-            "modified": "2024-09-03T18:05:59.447Z",
+            "modified": "2024-09-04T15:18:35.661Z",
             "headers": [
                 {
                     "name": "Content-Type",
@@ -58,7 +58,7 @@
             "method": "GET",
             "sortNum": 30000,
             "created": "2024-09-04T13:36:21.221Z",
-            "modified": "2024-09-04T14:23:35.539Z",
+            "modified": "2024-09-04T16:26:39.511Z",
             "headers": [
                 {
                     "name": "Content-Type",
@@ -66,7 +66,28 @@
                 },
                 {
                     "name": "Authorization",
-                    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjgwNTAyNDcsImlhdCI6MTcyNTQ1ODI0NywidXNlcl9lbWFpbCI6Im5hdmVlbmhldHRpd2F0aHRoYUBnbWFpbC5jb20iLCJ1c2VyX2lkIjoyfQ.twIr1CHPsMg99bEmx-807diDghdcT0RX5-yHH52ORf4"
+                    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjgwNTkxODIsImlhdCI6MTcyNTQ2NzE4MiwidXNlcl9lbWFpbCI6Im5hdmVlbmhldHRpd2F0aHRoYUBnbWFpbC5jb20iLCJ1c2VyX2lkIjoxfQ.1jYXPrfizGTDVS7LtIu0GXfKfzgVy0zRT3Z5QhDB2Fo"
+                }
+            ]
+        },
+        {
+            "_id": "56474bfe-cf0b-4f98-9238-cbddda21d782",
+            "colId": "dded48cf-f41c-42f3-94d5-24af1f6ad856",
+            "containerId": "",
+            "name": "logout",
+            "url": "{{app_url}}/api/auth/logout",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2024-09-04T16:07:34.800Z",
+            "modified": "2024-09-04T16:26:50.484Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                },
+                {
+                    "name": "Authorization",
+                    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjgwNTkxODIsImlhdCI6MTcyNTQ2NzE4MiwidXNlcl9lbWFpbCI6Im5hdmVlbmhldHRpd2F0aHRoYUBnbWFpbC5jb20iLCJ1c2VyX2lkIjoxfQ.1jYXPrfizGTDVS7LtIu0GXfKfzgVy0zRT3Z5QhDB2Fo"
                 }
             ]
         }

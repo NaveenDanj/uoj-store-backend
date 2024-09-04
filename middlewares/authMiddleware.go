@@ -26,6 +26,12 @@ func UserAuthRequired() gin.HandlerFunc {
 			return
 		}
 
+		if auth.IsBlocked(authToken) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated"})
+			c.Abort()
+			return
+		}
+
 		user, err := auth.GetUserByEmail(email)
 
 		if err != nil {

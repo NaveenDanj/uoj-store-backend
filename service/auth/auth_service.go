@@ -62,3 +62,26 @@ func GetAllUsers() ([]models.User, error) {
 	return users, nil
 
 }
+
+func BlockToken(token string) error {
+
+	var tokenRecord models.AccessToken
+
+	if err := db.GetDB().Where("token = ?", token).First(&tokenRecord).Error; err != nil {
+		return err
+	}
+
+	if err := db.GetDB().Model(&models.AccessToken{}).Where("token = ?", token).Update("blocked", true).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func IsBlocked(token string) bool {
+	var tokenRecord models.AccessToken
+	if err := db.GetDB().Where("token = ?", token).First(&tokenRecord).Error; err != nil {
+		return true
+	}
+	return tokenRecord.Blocked
+}

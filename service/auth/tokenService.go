@@ -26,9 +26,9 @@ func GenerateJWT(userId uint, email string) (string, error) {
 	}
 
 	tokenRecord := models.AccessToken{
-		UserId: userId,
-		Token:  tokenString,
-		Blockd: false,
+		UserId:  userId,
+		Token:   tokenString,
+		Blocked: false,
 	}
 
 	if err := db.GetDB().Create(&tokenRecord).Error; err != nil {
