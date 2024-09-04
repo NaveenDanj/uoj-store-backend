@@ -9,12 +9,12 @@
             "_id": "e28d7058-e6b2-4df8-8bd2-2774296ef6de",
             "colId": "dded48cf-f41c-42f3-94d5-24af1f6ad856",
             "containerId": "",
-            "name": "sign-in",
-            "url": "{{app_url}}/api/auth/sign-in",
+            "name": "sign-up",
+            "url": "{{app_url}}/api/auth/sign-up",
             "method": "POST",
             "sortNum": 10000,
             "created": "2024-09-03T15:47:18.993Z",
-            "modified": "2024-09-03T17:43:28.168Z",
+            "modified": "2024-09-03T18:05:59.447Z",
             "headers": [
                 {
                     "name": "Content-Type",
@@ -23,7 +23,29 @@
             ],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"name\" : \"Naveen Hettiwaththa\",\n  \"email\" : \"naveenhettiwathth@gmail.com\",\n  \"password\" : \"naveen123\",\n  \"passphrase\" : \"naveen is my name. can you see m\"\n}",
+                "raw": "{\n  \"name\" : \"Naveen Hettiwaththa\",\n  \"email\" : \"naveenhettiwaththa@gmail.com\",\n  \"password\" : \"naveen123\",\n  \"passphrase\" : \"naveen is my name. can you see m\"\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "1fc45513-884c-4174-821c-fde8606448d6",
+            "colId": "dded48cf-f41c-42f3-94d5-24af1f6ad856",
+            "containerId": "",
+            "name": "sign-in",
+            "url": "{{app_url}}/api/auth/sign-in",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2024-09-03T18:03:36.606Z",
+            "modified": "2024-09-04T12:53:36.898Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"email\" : \"naveenhettiwaththa@gmail.com\",\n  \"password\" : \"naveen123\"\n}",
                 "form": []
             }
         }

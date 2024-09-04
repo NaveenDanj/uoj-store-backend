@@ -19,8 +19,8 @@ func SetupRouter() *gin.Engine {
 	// User-related routes
 	api := r.Group("/api/auth")
 	{
-		api.POST("/sign-in", handlers.CreateNewUser)
-		// api.POST("/users", handlers.CreateUser)
+		api.POST("/sign-up", handlers.CreateNewUser)
+		api.POST("/sign-in", handlers.UserSignIn)
 		// api.GET("/users/:id", handlers.GetUser)
 		// api.PUT("/users/:id", handlers.UpdateUser)
 		// api.DELETE("/users/:id", handlers.DeleteUser)

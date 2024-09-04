@@ -6,3 +6,8 @@ type UserRequestDTO struct {
 	PassPhrase string `json:"passphrase" binding:"required,len=32"`
 	Password   string `json:"password" binding:"required,min=8"`
 }
+
+type UserSignInDTO struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+}

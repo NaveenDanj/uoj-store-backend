@@ -6,6 +6,7 @@ import (
 	"peer-store/service/auth"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func CreateNewUser(c *gin.Context) {
@@ -38,6 +39,49 @@ func CreateNewUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message":   "User account created successfully",
 		"user":      requestJSON,
+		"authToken": authToken,
+	})
+
+}
+
+func UserSignIn(c *gin.Context) {
+	var requestJSON dto.UserSignInDTO
+
+	if err := c.ShouldBindJSON(&requestJSON); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := auth.GetUserByEmail(requestJSON.Email)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(requestJSON.Password))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Username or password is in-correct, Please try again.",
+		})
+		return
+	}
+
+	authToken, err := auth.GenerateJWT(user.ID, user.Email)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":   "Login success",
+		"user":      user,
 		"authToken": authToken,
 	})
 
