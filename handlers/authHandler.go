@@ -29,13 +29,6 @@ func CreateNewUser(c *gin.Context) {
 		return
 	}
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
 	authToken, err := auth.GenerateJWT(user.ID, user.Email)
 
 	if err != nil {
@@ -120,6 +113,33 @@ func Logout(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Logout success!",
+	})
+
+}
+
+func GetUserPublicKey(c *gin.Context) {
+
+	userId := c.Param("userId")
+
+	if userId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "User ID is required",
+		})
+		return
+	}
+
+	pubKey, err := auth.GetPublicKey(userId)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error while fetching user public key ",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Public key retrieved successfully",
+		"pubKey":  pubKey,
 	})
 
 }

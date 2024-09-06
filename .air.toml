@@ -9,7 +9,9 @@ log = "air.log"
 [watch]
 # Set directories to watch
 excludes = ["test"]
+extensions = [".go", ".tpl", ".html"]
 includes = ["."]
+
 
 [logger]
 # Configure logging

@@ -40,7 +40,7 @@ func GeneratePkiKeyPair(passPhrase string) (string, string, error) {
 		return "", "", fmt.Errorf("error deleting pem file: %s", err.Error())
 	}
 
-	return privatePemFilePath, string(pubKey), nil
+	return privatePemFilePath + ".enc", string(pubKey), nil
 
 }
 

@@ -73,6 +73,14 @@ func GetAllUsers() ([]models.User, error) {
 
 }
 
+func GetPublicKey(userId string) (string, error) {
+	var pubKey string
+	if err := db.GetDB().Model(models.User{}).Select("pub_key").Where("id = ?", userId).First(&pubKey).Error; err != nil {
+		return "", err
+	}
+	return pubKey, nil
+}
+
 func BlockToken(token string) error {
 
 	var tokenRecord models.AccessToken

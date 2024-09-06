@@ -19,6 +19,7 @@ func SetupRouter() *gin.Engine {
 		api.POST("/sign-up", handlers.CreateNewUser)
 		api.POST("/sign-in", handlers.UserSignIn)
 		api.GET("/current-user", middlewares.UserAuthRequired(), handlers.GetCurrentUser)
+		api.GET("/get-user-pubkey/:userId", middlewares.UserAuthRequired(), handlers.GetUserPublicKey)
 		api.POST("/logout", middlewares.UserAuthRequired(), handlers.Logout)
 	}
 
