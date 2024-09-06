@@ -14,13 +14,19 @@ func SetupRouter() *gin.Engine {
 		c.JSON(200, gin.H{"message": "pong"})
 	})
 
-	api := r.Group("/api/auth")
+	authApi := r.Group("/api/auth")
 	{
-		api.POST("/sign-up", handlers.CreateNewUser)
-		api.POST("/sign-in", handlers.UserSignIn)
-		api.GET("/current-user", middlewares.UserAuthRequired(), handlers.GetCurrentUser)
-		api.GET("/get-user-pubkey/:userId", middlewares.UserAuthRequired(), handlers.GetUserPublicKey)
-		api.POST("/logout", middlewares.UserAuthRequired(), handlers.Logout)
+		authApi.POST("/sign-up", handlers.CreateNewUser)
+		authApi.POST("/sign-in", handlers.UserSignIn)
+		authApi.GET("/current-user", middlewares.UserAuthRequired(), handlers.GetCurrentUser)
+		authApi.GET("/get-user-pubkey/:userId", middlewares.UserAuthRequired(), handlers.GetUserPublicKey)
+		authApi.POST("/logout", middlewares.UserAuthRequired(), handlers.Logout)
+	}
+
+	fileApi := r.Group("/api/file")
+	fileApi.Use(middlewares.UserAuthRequired())
+	{
+		fileApi.POST("/upload", handlers.UploadFile)
 	}
 
 	return r
