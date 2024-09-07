@@ -1,66 +1,65 @@
 package handlers
 
 import (
-	"io"
 	"net/http"
-	"os"
-	"path/filepath"
+	"peer-store/dto"
+	"peer-store/models"
+	"peer-store/service/storage"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 func UploadFile(c *gin.Context) {
+
+	var requestForm dto.FileUploadDTO
+
+	if err := c.ShouldBind(&requestForm); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, _ := c.Get("currentUser")
+	userObj, _ := user.(models.User)
+
 	file, header, err := c.Request.FormFile("upfile")
 
 	if err != nil {
-		// Respond with a 400 Bad Request if there's an error
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to upload file : " + err.Error()})
 		return
 	}
 
-	tempFolder := "./disk/chunker/" + uuid.New().String()
-
-	err = os.MkdirAll(tempFolder, os.ModePerm)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create file : " + err.Error()})
+	if !storage.ValidatePassPhrase(requestForm.PassPhrase, &userObj) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to upload file : Invalid pass phrase"})
 		return
 	}
 
-	dst, err := os.Create(filepath.Join(tempFolder, header.Filename))
+	buffer := make([]byte, 512)
+	_, err = file.Read(buffer)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create file on server"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read file: " + err.Error()})
 		return
 	}
 
-	defer dst.Close() // Ensure the destination file is closed after writing
+	// Detect the MIME type
+	mimeType := http.DetectContentType(buffer)
 
-	// Stream data from the incoming file to the destination file
-	buf := make([]byte, 1024*1024) // 1MB buffer size
-	for {
-		n, err := file.Read(buf)
-		if err != nil && err != io.EOF {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error reading file"})
-			return
-		}
-		if n == 0 {
-			break
-		}
+	metaData, err := storage.FileUploader(file, header)
 
-		// Write the buffer to the destination file
-		if _, err := dst.Write(buf[:n]); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error writing file"})
-			return
-		}
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to upload file : " + err.Error()})
+		return
+	}
+
+	UploadedFileData, err := storage.StoreUploadedFile(mimeType, &metaData, &userObj, requestForm.PassPhrase)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to upload file : " + err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":     "File uploaded successfully",
-		"file_path":   filepath.Join(tempFolder, header.Filename),
-		"temp_folder": tempFolder,
-		"filename":    header.Filename,
-		"size":        header.Size,
+		"message":  "File uploaded successfully",
+		"FileData": UploadedFileData,
 	})
 
 }
