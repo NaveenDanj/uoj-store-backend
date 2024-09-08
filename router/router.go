@@ -27,6 +27,7 @@ func SetupRouter() *gin.Engine {
 	fileApi.Use(middlewares.UserAuthRequired())
 	{
 		fileApi.POST("/upload", handlers.UploadFile)
+		fileApi.POST("/download/:fileId", handlers.UploadFile)
 	}
 
 	return r

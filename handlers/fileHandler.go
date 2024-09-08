@@ -63,3 +63,7 @@ func UploadFile(c *gin.Context) {
 	})
 
 }
+
+func DownloadFile(c *gin.Context) {
+
+}
