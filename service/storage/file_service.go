@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"os"
@@ -115,7 +116,7 @@ func StoreUploadedFile(mimeData string, fileData *FileUploadMetaData, user *mode
 	}
 	defer file.Close()
 
-	if _, err := file.Write(encrypted_data); err != nil {
+	if _, err := file.Write([]byte(encrypted_data)); err != nil {
 		return &models.File{}, err
 	}
 
@@ -142,6 +143,20 @@ func StoreUploadedFile(mimeData string, fileData *FileUploadMetaData, user *mode
 
 }
 
+func createFolder(folderPath string) error {
+	// Check if the folder exists
+	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
+		err := os.MkdirAll(folderPath, os.ModePerm)
+		if err != nil {
+			return fmt.Errorf("failed to create folder: %w", err)
+		}
+		fmt.Println("Folder created:", folderPath)
+	} else {
+		fmt.Println("Folder already exists:", folderPath)
+	}
+	return nil
+}
+
 func DeleteFile(filepath string) error {
 	err := os.Remove(filepath)
 	if err != nil {
@@ -160,60 +175,62 @@ func DeleteFolder(folderPath string) error {
 
 }
 
-func HandleDownloadProcess(fileId string, user *models.User, passPhrase string) (string, error) {
+func HandleDownloadProcess(fileId string, user *models.User, passPhrase string) (string, string, error) {
 
 	// check the owner
 	var gotFile models.File
 	if err := db.GetDB().Model(&models.File{}).Where("file_id = ?", fileId).Where("user_id = ?", user.ID).First(&gotFile).Error; err != nil {
-		return "", errors.New("permission denied")
+		return "", "", errors.New("permission denied")
 	}
 
 	// check the passPhrase
 	if !ValidatePassPhrase(passPhrase, user) {
-		return "", errors.New("invalid pass phrase")
+		return "", "", errors.New("invalid pass phrase")
 	}
 
 	// decrypt the file
 	rawFileData, err := os.ReadFile(gotFile.StoragePath)
 
 	if err != nil {
-		return "", errors.New("could not find the file")
+		return "", "", errors.New("could not find the file")
 	}
 
 	decryptedFileData, err := pki.Decrypt(string(rawFileData), []byte(passPhrase))
 
 	if err != nil {
-		return "", errors.New("file is failed to be decrypted")
+		return "", "", err
 	}
+
+	createFolder("./disk/public/" + gotFile.FileId)
 
 	uploadPath := "./disk/public/" + gotFile.FileId + "/" + gotFile.OriginalName
 
 	file, err := os.Create(uploadPath)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	defer file.Close()
 
 	if _, err := file.Write(decryptedFileData); err != nil {
-		return "", errors.New("cannot create decrypted file")
+		return "", "", errors.New("cannot create decrypted file")
 	}
 
 	publicKey, err := pki.LoadPublicKey([]byte(user.PubKey))
 
 	if err != nil {
-		return "", errors.New("cannot load public key")
+		return "", "", errors.New("cannot load public key")
 	}
 
 	// check the file checksum
 	if err := pki.VerifySign(uploadPath, gotFile.FileSignature, publicKey); err != nil {
-		return "", errors.New("unauthorized filed alteration detected!")
+		return "", "", errors.New("unauthorized filed alteration detected")
 	}
 
 	// increment download count
 	if err := db.GetDB().Model(&models.File{}).Where("file_id = ?", gotFile.FileId).Update("download_count", gotFile.DownloadCount+1).Error; err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return uploadPath, nil
+	return uploadPath, gotFile.MimeType, nil
 
 }

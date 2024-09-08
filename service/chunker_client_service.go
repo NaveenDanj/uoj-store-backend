@@ -87,7 +87,7 @@ func UploadFileAsChunk(filepath string) error {
 			return fmt.Errorf(err.Error())
 		}
 
-		partFile.Write(encrypted_data)
+		partFile.Write([]byte(encrypted_data))
 
 	}
 

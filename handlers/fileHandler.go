@@ -43,6 +43,12 @@ func UploadFile(c *gin.Context) {
 	// Detect the MIME type
 	mimeType := http.DetectContentType(buffer)
 
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to reset file pointer: " + err.Error()})
+		return
+	}
+
 	metaData, err := storage.FileUploader(file, header)
 
 	if err != nil {
@@ -65,5 +71,27 @@ func UploadFile(c *gin.Context) {
 }
 
 func DownloadFile(c *gin.Context) {
+	var requestForm dto.FileDownloadRequestDTO
 
+	if err := c.ShouldBindJSON(&requestForm); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, _ := c.Get("currentUser")
+	userObj, _ := user.(models.User)
+
+	path, mimeType, err := storage.HandleDownloadProcess(requestForm.FileId, &userObj, requestForm.PassPhrase)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Header("Content-Type", mimeType)
+	c.File(path)
+
+	// delete the file if it exists
+	storage.DeleteFile(path)
+	storage.DeleteFolder("./disk/public/" + requestForm.FileId)
 }

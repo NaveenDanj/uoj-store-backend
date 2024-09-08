@@ -101,28 +101,31 @@ func decryptAESGCM(key, ciphertext []byte) ([]byte, error) {
 	return plaintext, nil
 }
 
-func Encrypt(plainText, key []byte) ([]byte, error) {
+func Encrypt(plainText, key []byte) (string, error) {
 	// Create a new AES cipher with the given key
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create cipher: %w", err)
+		return "", fmt.Errorf("failed to create cipher: %w", err)
 	}
 
 	// Create a new GCM cipher mode instance
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create GCM: %w", err)
+		return "", fmt.Errorf("failed to create GCM: %w", err)
 	}
 
 	// Create a nonce (number used once) with the required size
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, fmt.Errorf("failed to generate nonce: %w", err)
+		return "", fmt.Errorf("failed to generate nonce: %w", err)
 	}
 
 	// Encrypt the plain text and prepend the nonce
 	cipherText := gcm.Seal(nonce, nonce, plainText, nil)
-	return cipherText, nil
+
+	cipherTextHex := hex.EncodeToString(cipherText)
+
+	return cipherTextHex, nil
 }
 
 func Decrypt(cipherTextHex string, key []byte) ([]byte, error) {

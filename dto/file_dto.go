@@ -5,6 +5,6 @@ type FileUploadDTO struct {
 }
 
 type FileDownloadRequestDTO struct {
-	PassPhrase string `form:"passPhrase" binding:"required"`
-	FileId     string `form:"fileId" binding:"required"`
+	PassPhrase string `json:"passPhrase" binding:"required"`
+	FileId     string `json:"fileId" binding:"required"`
 }
