@@ -234,3 +234,30 @@ func HandleDownloadProcess(fileId string, user *models.User, passPhrase string) 
 	return uploadPath, gotFile.MimeType, nil
 
 }
+
+func FileDeleteService(fileId string, user *models.User) error {
+
+	// check the owner of the file
+	var file *models.File
+
+	if err := db.GetDB().Model(&models.File{}).Where("file_id = ?", fileId).First(&file).Error; err != nil {
+		return err
+	}
+
+	if file.UserId != user.ID {
+		return errors.New("permission denied")
+	}
+
+	// delete the file from the database
+	if err := db.GetDB().Model(&models.File{}).Where("file_id = ?", fileId).Delete(&file).Error; err != nil {
+		return err
+	}
+
+	// delete the file from the disk
+	if err := DeleteFile(file.StoragePath); err != nil {
+		return err
+	}
+
+	return nil
+
+}

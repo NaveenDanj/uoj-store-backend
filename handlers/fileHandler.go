@@ -71,6 +71,7 @@ func UploadFile(c *gin.Context) {
 }
 
 func DownloadFile(c *gin.Context) {
+
 	var requestForm dto.FileDownloadRequestDTO
 
 	if err := c.ShouldBindJSON(&requestForm); err != nil {
@@ -94,4 +95,27 @@ func DownloadFile(c *gin.Context) {
 	// delete the file if it exists
 	storage.DeleteFile(path)
 	storage.DeleteFolder("./disk/public/" + requestForm.FileId)
+
+}
+
+func DeleteFile(c *gin.Context) {
+	var requestForm dto.FileDeleteRequestDTO
+
+	if err := c.ShouldBindJSON(&requestForm); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, _ := c.Get("currentUser")
+	userObj, _ := user.(models.User)
+
+	if err := storage.FileDeleteService(requestForm.FileId, &userObj); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "File deleted successfully",
+	})
+
 }

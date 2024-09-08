@@ -28,6 +28,7 @@ func SetupRouter() *gin.Engine {
 	{
 		fileApi.POST("/upload", handlers.UploadFile)
 		fileApi.POST("/download/", handlers.DownloadFile)
+		fileApi.DELETE("/delete/", handlers.DeleteFile)
 	}
 
 	return r

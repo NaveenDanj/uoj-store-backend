@@ -8,3 +8,7 @@ type FileDownloadRequestDTO struct {
 	PassPhrase string `json:"passPhrase" binding:"required"`
 	FileId     string `json:"fileId" binding:"required"`
 }
+
+type FileDeleteRequestDTO struct {
+	FileId string `json:"fileId" binding:"required"`
+}
