@@ -26,6 +26,8 @@ func Setup() {
 		db.AutoMigrate(&models.User{})
 		db.AutoMigrate(&models.AccessToken{})
 		db.AutoMigrate(&models.File{})
+		db.AutoMigrate(&models.FileShare{})
+		db.AutoMigrate(&models.FileShareUser{})
 
 		instance = db
 	})
