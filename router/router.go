@@ -29,6 +29,13 @@ func SetupRouter() *gin.Engine {
 		fileApi.POST("/upload", handlers.UploadFile)
 		fileApi.POST("/download/", handlers.DownloadFile)
 		fileApi.DELETE("/delete/", handlers.DeleteFile)
+		fileApi.GET("/get-user-files", handlers.GetUserFiles)
+	}
+
+	shareApi := r.Group("/api/share")
+	shareApi.Use(middlewares.UserAuthRequired())
+	{
+		shareApi.POST("/generate-link", handlers.UploadFile)
 	}
 
 	return r

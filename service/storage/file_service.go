@@ -261,3 +261,15 @@ func FileDeleteService(fileId string, user *models.User) error {
 	return nil
 
 }
+
+func GetUserFiles(userId uint) ([]*models.File, error) {
+
+	var files []*models.File
+
+	if err := db.GetDB().Model(&models.File{}).Where("user_id  = ?", userId).Find(&files).Error; err != nil {
+		return files, err
+	}
+
+	return files, nil
+
+}

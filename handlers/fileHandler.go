@@ -119,3 +119,24 @@ func DeleteFile(c *gin.Context) {
 	})
 
 }
+
+func GetUserFiles(c *gin.Context) {
+
+	user, _ := c.Get("currentUser")
+	userObj, _ := user.(models.User)
+
+	files, err := storage.GetUserFiles(userObj.ID)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"files": files,
+	})
+
+	return
+}
