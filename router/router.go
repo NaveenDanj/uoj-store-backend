@@ -36,7 +36,7 @@ func SetupRouter() *gin.Engine {
 	shareApi.Use(middlewares.UserAuthRequired())
 	{
 		shareApi.POST("/generate-link", handlers.GenerateLink)
-		shareApi.POST("/revoke-link", handlers.GenerateLink)
+		shareApi.POST("/revoke-link", handlers.RevokeLink)
 	}
 
 	return r

@@ -103,11 +103,21 @@ func GenerateShareLink(fileShareDetails *dto.FileShareRequestDTO, user *models.U
 
 }
 
-func RevokeLink(shareId string, fileId string, user *models.User) error {
+func RevokeLink(token string, user *models.User) error {
+
+	var fileShare *models.FileShare
+
+	if err := db.GetDB().Model(&models.FileShare{}).Where("Token = ?", token).First(&fileShare).Error; err != nil {
+		return err
+	}
+
+	if fileShare.Status == "Revoked" {
+		return errors.New("link already revoked")
+	}
 
 	var requestFile *models.File
 
-	if err := db.GetDB().Model(&models.File{}).Where("file_id = ?", fileId).First(&requestFile).Error; err != nil {
+	if err := db.GetDB().Model(&models.File{}).Where("file_id = ?", fileShare.FileId).First(&requestFile).Error; err != nil {
 		return err
 	}
 
@@ -115,9 +125,10 @@ func RevokeLink(shareId string, fileId string, user *models.User) error {
 		return errors.New("permission denied")
 	}
 
-	if err := db.GetDB().Model(&models.FileShare{}).Where("id = ?", shareId).Update("status", "Revoked").Error; err != nil {
+	if err := db.GetDB().Model(&models.FileShare{}).Where("id = ?", fileShare.Id).Update("status", "Revoked").Error; err != nil {
 		return err
 	}
 
 	return nil
+
 }
