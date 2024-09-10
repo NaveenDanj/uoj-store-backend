@@ -129,6 +129,90 @@ func RevokeLink(token string, user *models.User) error {
 		return err
 	}
 
+	if err := DeleteFile("./disk/shared/" + requestFile.FileId); err != nil {
+		return err
+	}
+
 	return nil
+
+}
+
+func DownloadSharedFile(token string, user *models.User) (string, string, string, error) {
+
+	var sharedFile *models.FileShare
+
+	if err := db.GetDB().Model(&models.FileShare{}).Where("token = ?", token).Find(&sharedFile).Error; err != nil {
+		return "", "", "", err
+	}
+
+	var file *models.File
+
+	if err := db.GetDB().Model(&models.File{}).Where("file_id = ?", sharedFile.FileId).Find(&file).Error; err != nil {
+		return "", "", "", err
+	}
+
+	// check expiry date
+	if sharedFile.Status == "Revoked" || sharedFile.ExpireDate.Before(time.Now().UTC()) {
+		return "", "", "", errors.New("link is expired or revoked")
+	}
+
+	// check file permission
+	var userShare *models.FileShareUser
+
+	if err := db.GetDB().Model(&models.FileShareUser{}).Where("user_id =?", user.ID).Where("file_share_id =?", sharedFile.Id).First(&userShare).Error; err != nil {
+		return "", "", "", err
+	}
+
+	// check download count
+	if userShare.DownloadCount >= sharedFile.DownloadLimit {
+		return "", "", "", errors.New("download limit reached")
+	}
+
+	userShare.DownloadCount++
+
+	if err := db.GetDB().Save(userShare).Error; err != nil {
+		return "", "", "", err
+	}
+
+	// decrypt the file
+	rawFileData, err := os.ReadFile("./disk/shared/" + file.FileId)
+
+	if err != nil {
+		return "", "", "", errors.New("could not find the file")
+	}
+
+	decryptedFileData, err := pki.Decrypt(string(rawFileData), []byte(sharedFile.EncryptionKey))
+
+	if err != nil {
+		return "", "", "", err
+	}
+
+	createFolder("./disk/public/" + file.FileId)
+
+	uploadPath := "./disk/public/" + file.FileId + "/" + file.OriginalName
+
+	newFile, err := os.Create(uploadPath)
+
+	if err != nil {
+		return "", "", "", err
+	}
+	defer newFile.Close()
+
+	if _, err := newFile.Write(decryptedFileData); err != nil {
+		return "", "", "", errors.New("cannot create decrypted file")
+	}
+
+	publicKey, err := pki.LoadPublicKey([]byte(user.PubKey))
+
+	if err != nil {
+		return "", "", "", errors.New("cannot load public key")
+	}
+
+	// check the file checksum
+	if err := pki.VerifySign(uploadPath, file.FileSignature, publicKey); err != nil {
+		return "", "", "", errors.New("unauthorized filed alteration detected")
+	}
+
+	return uploadPath, file.MimeType, file.FileId, nil
 
 }

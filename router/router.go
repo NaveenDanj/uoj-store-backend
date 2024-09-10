@@ -37,6 +37,7 @@ func SetupRouter() *gin.Engine {
 	{
 		shareApi.POST("/generate-link", handlers.GenerateLink)
 		shareApi.POST("/revoke-link", handlers.RevokeLink)
+		shareApi.GET("/file/:token", handlers.DownloadSharedFile)
 	}
 
 	return r

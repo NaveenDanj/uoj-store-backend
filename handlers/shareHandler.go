@@ -57,3 +57,33 @@ func RevokeLink(c *gin.Context) {
 	})
 
 }
+
+func DownloadSharedFile(c *gin.Context) {
+	token := c.Param("token")
+
+	if token == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Token is required",
+		})
+		return
+	}
+
+	user, _ := c.Get("currentUser")
+	userObj, _ := user.(models.User)
+
+	path, mimeType, fileId, err := storage.DownloadSharedFile(token, &userObj)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.Header("Content-Type", mimeType)
+	c.File(path)
+
+	storage.DeleteFile(path)
+	storage.DeleteFolder("./disk/public/" + fileId)
+
+}
