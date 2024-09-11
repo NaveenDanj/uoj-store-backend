@@ -188,50 +188,17 @@ func HandleDownloadProcess(fileId string, user *models.User, passPhrase string) 
 		return "", "", errors.New("invalid pass phrase")
 	}
 
-	// decrypt the file
-	rawFileData, err := os.ReadFile(gotFile.StoragePath)
+	path, mime, _, err := UtilDecryptAndUse(&gotFile, gotFile.StoragePath, []byte(passPhrase), user)
 
 	if err != nil {
-		return "", "", errors.New("could not find the file")
-	}
-
-	decryptedFileData, err := pki.Decrypt(string(rawFileData), []byte(passPhrase))
-
-	if err != nil {
-		return "", "", err
-	}
-
-	createFolder("./disk/public/" + gotFile.FileId)
-
-	uploadPath := "./disk/public/" + gotFile.FileId + "/" + gotFile.OriginalName
-
-	file, err := os.Create(uploadPath)
-	if err != nil {
-		return "", "", err
-	}
-	defer file.Close()
-
-	if _, err := file.Write(decryptedFileData); err != nil {
-		return "", "", errors.New("cannot create decrypted file")
-	}
-
-	publicKey, err := pki.LoadPublicKey([]byte(user.PubKey))
-
-	if err != nil {
-		return "", "", errors.New("cannot load public key")
-	}
-
-	// check the file checksum
-	if err := pki.VerifySign(uploadPath, gotFile.FileSignature, publicKey); err != nil {
 		return "", "", errors.New("unauthorized filed alteration detected")
 	}
-
 	// increment download count
 	if err := db.GetDB().Model(&models.File{}).Where("file_id = ?", gotFile.FileId).Update("download_count", gotFile.DownloadCount+1).Error; err != nil {
 		return "", "", err
 	}
 
-	return uploadPath, gotFile.MimeType, nil
+	return path, mime, nil
 
 }
 
