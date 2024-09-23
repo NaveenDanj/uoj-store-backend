@@ -32,6 +32,18 @@ func GenerateShareLink(fileShareDetails *dto.FileShareRequestDTO, user *models.U
 		return "", errors.New("invalid pass phrase")
 	}
 
+	expireDate, err := time.Parse(time.RFC3339, fileShareDetails.ExpireDate)
+
+	if err != nil {
+		return "", err
+	}
+
+	today := time.Now()
+
+	if expireDate.Compare(today) < 0 {
+		return "", errors.New("invalid expire date")
+	}
+
 	rawFileData, err := os.ReadFile(requestFile.StoragePath)
 
 	if err != nil {
@@ -61,12 +73,6 @@ func GenerateShareLink(fileShareDetails *dto.FileShareRequestDTO, user *models.U
 
 	if _, err := file.Write([]byte(out)); err != nil {
 		return "", errors.New("cannot create encrypted file")
-	}
-
-	expireDate, err := time.Parse(time.RFC3339, fileShareDetails.ExpireDate)
-
-	if err != nil {
-		return "", err
 	}
 
 	fileShare := models.FileShare{
