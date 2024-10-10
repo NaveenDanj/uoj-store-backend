@@ -54,7 +54,7 @@ func UserSignIn(c *gin.Context) {
 		return
 	}
 
-	user, err := auth.GetUserByEmail(requestJSON.Email)
+	user, err := auth.GetUserByUsername(requestJSON.Username)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -72,7 +72,7 @@ func UserSignIn(c *gin.Context) {
 		return
 	}
 
-	authToken, err := auth.GenerateJWT(user.ID, user.Email)
+	authToken, err := auth.GenerateJWT(user.ID, user.Username)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -141,5 +141,25 @@ func GetUserPublicKey(c *gin.Context) {
 		"message": "Public key retrieved successfully",
 		"pubKey":  pubKey,
 	})
+
+}
+
+func VerifyAccount(c *gin.Context) {
+	var requestJSON dto.VerfyAccountDTO
+
+	if err := c.ShouldBindJSON(&requestJSON); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	res := auth.VerifyAccount(requestJSON.OTP, requestJSON.UserId)
+
+	if !res {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Account verification failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"error": "Account verified successfully"})
+	return
 
 }

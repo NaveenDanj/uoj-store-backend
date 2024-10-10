@@ -10,12 +10,12 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func GenerateJWT(userId uint, email string) (string, error) {
+func GenerateJWT(userId uint, username string) (string, error) {
 	claims := jwt.MapClaims{
-		"user_id":    userId,
-		"user_email": email,
-		"exp":        time.Now().Add(30 * time.Hour * 24).Unix(),
-		"iat":        time.Now().Unix(),
+		"user_id":  userId,
+		"username": username,
+		"exp":      time.Now().Add(30 * time.Hour * 24).Unix(),
+		"iat":      time.Now().Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -56,7 +56,7 @@ func VerifyJWT(tokenString string) (string, string, error) {
 
 		userID := fmt.Sprintf("%v", claims["user_id"])
 
-		userEmail, ok := claims["user_email"].(string)
+		username, ok := claims["username"].(string)
 
 		if !ok {
 			return "", "", fmt.Errorf("invalid user email claim")
@@ -66,7 +66,7 @@ func VerifyJWT(tokenString string) (string, string, error) {
 			return "", "", fmt.Errorf("token has expired")
 		}
 
-		return userID, userEmail, nil
+		return userID, username, nil
 
 	}
 

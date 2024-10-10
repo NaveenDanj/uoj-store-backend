@@ -2,10 +2,12 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"peer-store/core/pki"
 	"peer-store/db"
 	"peer-store/dto"
 	"peer-store/models"
+	"peer-store/service"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -56,6 +58,13 @@ func CreateNewUser(userDTO *dto.UserRequestDTO) (models.User, error) {
 		PrivateKeyPath:     privateKeyPath,
 		RegistrationNumber: userDTO.RegistrationNumber,
 		OTP:                otp,
+	}
+
+	html := service.ProcessOTPEmail(otp, userDTO.Name)
+
+	if err := service.SendEmail(userDTO.Email, "UOJ-Store Account verification OTP", html); err != nil {
+		fmt.Println("Error is -> " + err.Error())
+		return models.User{}, errors.New("error while sending OTP")
 	}
 
 	if err := db.GetDB().Create(&newUser).Error; err != nil {
@@ -134,6 +143,29 @@ func IsBlocked(token string) bool {
 		return true
 	}
 	return tokenRecord.Blocked
+}
+
+func VerifyAccount(otp string, userId string) bool {
+	var user models.User
+
+	if err := db.GetDB().Where("id = ?", userId).First(&user).Error; err != nil {
+		return false
+	}
+
+	if user.IsVerified {
+		return false
+	}
+
+	if user.OTP != otp {
+		return false
+	}
+
+	user.IsVerified = true
+	if err := db.GetDB().Save(&user).Error; err != nil {
+		return false
+	}
+
+	return true
 }
 
 func generateOTP(length int) string {

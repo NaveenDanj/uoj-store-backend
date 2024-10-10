@@ -18,7 +18,7 @@ func UserAuthRequired() gin.HandlerFunc {
 			return
 		}
 
-		_, email, err := auth.VerifyJWT(authToken)
+		_, username, err := auth.VerifyJWT(authToken)
 
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated"})
@@ -32,10 +32,22 @@ func UserAuthRequired() gin.HandlerFunc {
 			return
 		}
 
-		user, err := auth.GetUserByEmail(email)
+		user, err := auth.GetUserByUsername(username)
 
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated"})
+			c.Abort()
+			return
+		}
+
+		if !user.IsVerified {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Account not verified"})
+			c.Abort()
+			return
+		}
+
+		if !user.IsActive {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Account is not activated"})
 			c.Abort()
 			return
 		}

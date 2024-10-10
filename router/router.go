@@ -18,6 +18,7 @@ func SetupRouter() *gin.Engine {
 	{
 		authApi.POST("/sign-up", handlers.CreateNewUser)
 		authApi.POST("/sign-in", handlers.UserSignIn)
+		authApi.POST("/verify-account", handlers.VerifyAccount)
 		authApi.GET("/current-user", middlewares.UserAuthRequired(), handlers.GetCurrentUser)
 		authApi.GET("/get-user-pubkey/:userId", middlewares.UserAuthRequired(), handlers.GetUserPublicKey)
 		authApi.POST("/logout", middlewares.UserAuthRequired(), handlers.Logout)
