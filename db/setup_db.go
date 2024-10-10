@@ -17,7 +17,9 @@ var (
 
 func Setup() {
 	once.Do(func() { // Ensure the instance is created only once
+
 		db, err := gorm.Open(sqlite.Open(config.CONFIG.DatabaseName), &gorm.Config{})
+
 		if err != nil {
 			log.Fatalf("failed to connect database: %v", err)
 		}
@@ -28,8 +30,10 @@ func Setup() {
 		db.AutoMigrate(&models.File{})
 		db.AutoMigrate(&models.FileShare{})
 		db.AutoMigrate(&models.FileShareUser{})
+		db.AutoMigrate(&models.Folder{})
 
 		instance = db
+
 	})
 }
 

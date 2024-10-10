@@ -1,8 +1,13 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type FileShare struct {
+	gorm.Model
 	Id            int       `json:"id" gorm:"primaryKey;autoIncrement"`
 	FileId        string    `json:"file_id"`
 	OwnerId       uint      `json:"owner_id"`
@@ -17,6 +22,7 @@ type FileShare struct {
 }
 
 type FileShareUser struct {
+	gorm.Model
 	Id            int  `json:"id" gorm:"primaryKey;autoIncrement"`
 	FileShareId   uint `json:"file_share_id"`
 	UserId        uint `json:"user_id"`

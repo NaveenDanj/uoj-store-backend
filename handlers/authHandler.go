@@ -24,7 +24,7 @@ func CreateNewUser(c *gin.Context) {
 
 	if err != nil && user.Email != "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Email is already used in another account!",
+			"message": err.Error(),
 		})
 		return
 	}
