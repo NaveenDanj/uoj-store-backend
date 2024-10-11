@@ -4,11 +4,20 @@ import (
 	"peer-store/handlers"
 	"peer-store/middlewares"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "pong"})
@@ -41,6 +50,12 @@ func SetupRouter() *gin.Engine {
 		shareApi.POST("/generate-link", handlers.GenerateLink)
 		shareApi.POST("/revoke-link", handlers.RevokeLink)
 		shareApi.GET("/file/:token", handlers.DownloadSharedFile)
+	}
+
+	adminApi := r.Group("/api/admin")
+	// adminApi.Use(middlewares.UserAuthRequired())
+	{
+		adminApi.POST("/change-account-status", handlers.ActivateAccount)
 	}
 
 	return r

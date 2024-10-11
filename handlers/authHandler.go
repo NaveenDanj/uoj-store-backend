@@ -72,6 +72,20 @@ func UserSignIn(c *gin.Context) {
 		return
 	}
 
+	if !user.IsVerified {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "user account is not verified",
+		})
+		return
+	}
+
+	if !user.IsActive {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "user account is not activated",
+		})
+		return
+	}
+
 	authToken, err := auth.GenerateJWT(user.ID, user.Username)
 
 	if err != nil {
