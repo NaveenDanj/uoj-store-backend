@@ -53,9 +53,10 @@ func SetupRouter() *gin.Engine {
 	}
 
 	adminApi := r.Group("/api/admin")
-	// adminApi.Use(middlewares.UserAuthRequired())
+	adminApi.Use(middlewares.AdminUserAuthRequired())
 	{
 		adminApi.POST("/change-account-status", handlers.ActivateAccount)
+		adminApi.POST("/create-admin", handlers.ActivateAccount)
 	}
 
 	return r
