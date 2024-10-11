@@ -163,3 +163,40 @@ func VerifyAccount(c *gin.Context) {
 	return
 
 }
+
+func ResetPasswordSendMail(c *gin.Context) {
+	var requestJSON dto.ResetPasswordSendMailDTO
+
+	if err := c.ShouldBindJSON(&requestJSON); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := auth.GetUserByEmail(requestJSON.Email)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to send reset password link"})
+		return
+	}
+
+	if !user.IsVerified {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to send reset password link"})
+		return
+	}
+
+	if !user.IsActive {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to send reset password link"})
+		return
+	}
+
+	if _, err := auth.ResetPasswordGenerateLink(user.ID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to send reset password link"})
+		return
+	}
+
+	c.JSON(http.StatusBadRequest, gin.H{"message": "Success"})
+}
+
+func ResetPasswordSetPassword(c *gin.Context) {
+
+}

@@ -10,6 +10,7 @@ import (
 	"peer-store/service"
 	"time"
 
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/exp/rand"
 )
@@ -166,6 +167,50 @@ func VerifyAccount(otp string, userId string) bool {
 	}
 
 	return true
+}
+
+func ResetPasswordGenerateLink(userid uint) (bool, error) {
+
+	var user models.User
+	if err := db.GetDB().Where("id = ?", userid).First(&user).Error; err != nil {
+		return false, errors.New("user not found")
+	}
+
+	if !user.IsVerified {
+		return false, errors.New("User is not verified")
+	}
+
+	if !user.IsActive {
+		return false, errors.New("User is not active")
+	}
+
+	db.GetDB().Where("user_id = ?", user.ID).Delete(&models.ResetPassword{})
+
+	token := uuid.New().String()
+	currentTime := time.Now().UTC()
+	newTime := currentTime.Add(30 * time.Minute).UTC()
+
+	resetPasssword := models.ResetPassword{
+		UserId:     user.ID,
+		ResetToken: token,
+		ExpireDate: newTime,
+	}
+
+	if err := db.GetDB().Create(&resetPasssword).Error; err != nil {
+		return false, errors.New("Error while generating reset password link")
+	}
+
+	link := "https://happy-island-02da9970f.5.azurestaticapps.net/reset-password/" + token
+
+	// send the email
+	html := service.ProcessResetPasswordEmail(user.Username, link)
+
+	if err := service.SendEmail(user.Email, "UOJ-Store Password reset link", html); err != nil {
+		return false, errors.New("error while sending password reset link")
+	}
+
+	return true, nil
+
 }
 
 func generateOTP(length int) string {
