@@ -21,3 +21,8 @@ type VerfyAccountDTO struct {
 type ResetPasswordSendMailDTO struct {
 	Email string `json:"email" binding:"required,email"`
 }
+
+type ResetPasswordNewPasswordDTO struct {
+	Password string `json:"password" binding:"required,min=8"`
+	Token    string `json:"token" binding:"required"`
+}

@@ -20,6 +20,7 @@ func SetupRouter() *gin.Engine {
 		authApi.POST("/sign-in", handlers.UserSignIn)
 		authApi.POST("/verify-account", handlers.VerifyAccount)
 		authApi.POST("/reset-password-send-link", handlers.ResetPasswordSendMail)
+		authApi.POST("/reset-password", handlers.ResetPasswordSetPassword)
 		authApi.GET("/current-user", middlewares.UserAuthRequired(), handlers.GetCurrentUser)
 		authApi.GET("/get-user-pubkey/:userId", middlewares.UserAuthRequired(), handlers.GetUserPublicKey)
 		authApi.POST("/logout", middlewares.UserAuthRequired(), handlers.Logout)

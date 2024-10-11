@@ -2,7 +2,6 @@ package auth
 
 import (
 	"errors"
-	"fmt"
 	"peer-store/core/pki"
 	"peer-store/db"
 	"peer-store/dto"
@@ -64,7 +63,6 @@ func CreateNewUser(userDTO *dto.UserRequestDTO) (models.User, error) {
 	html := service.ProcessOTPEmail(otp, userDTO.Name)
 
 	if err := service.SendEmail(userDTO.Email, "UOJ-Store Account verification OTP", html); err != nil {
-		fmt.Println("Error is -> " + err.Error())
 		return models.User{}, errors.New("error while sending OTP")
 	}
 
@@ -177,7 +175,7 @@ func ResetPasswordGenerateLink(userid uint) (bool, error) {
 	}
 
 	if !user.IsVerified {
-		return false, errors.New("User is not verified")
+		return false, errors.New("user is not verified")
 	}
 
 	if !user.IsActive {
@@ -197,10 +195,10 @@ func ResetPasswordGenerateLink(userid uint) (bool, error) {
 	}
 
 	if err := db.GetDB().Create(&resetPasssword).Error; err != nil {
-		return false, errors.New("Error while generating reset password link")
+		return false, errors.New("error while generating reset password link")
 	}
 
-	link := "https://happy-island-02da9970f.5.azurestaticapps.net/reset-password/" + token
+	link := "https://happy-island-02da9970f.5.azurestaticapps.net/auth/reset-password/" + token
 
 	// send the email
 	html := service.ProcessResetPasswordEmail(user.Username, link)
@@ -210,6 +208,38 @@ func ResetPasswordGenerateLink(userid uint) (bool, error) {
 	}
 
 	return true, nil
+
+}
+
+func HandleResetPassword(token string, newPassword string) error {
+	var resetPassword models.ResetPassword
+	if err := db.GetDB().Where("reset_token = ?", token).First(&resetPassword).Error; err != nil {
+		return errors.New("Invalid password reset link")
+	}
+
+	today := time.Now().UTC()
+
+	if resetPassword.ExpireDate.UTC().Compare(today) < 0 {
+		return errors.New("link expired")
+	}
+
+	var user models.User
+
+	if err := db.GetDB().Where("id = ?", resetPassword.UserId).First(&user).Error; err != nil {
+		return errors.New("user not found")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+
+	if err != nil {
+		return errors.New("reset password failed")
+	}
+
+	db.GetDB().Model(&models.User{}).Where("id = ?", user.ID).Update("password", string(hashedPassword))
+	// db.GetDB().Where("reset_token = ?", token).Delete(&models.ResetPassword{})
+	db.GetDB().Unscoped().Where("reset_token = ?", token).Delete(&models.ResetPassword{})
+
+	return nil
 
 }
 

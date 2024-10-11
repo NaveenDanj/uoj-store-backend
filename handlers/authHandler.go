@@ -175,7 +175,7 @@ func ResetPasswordSendMail(c *gin.Context) {
 	user, err := auth.GetUserByEmail(requestJSON.Email)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to send reset password link"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -194,9 +194,22 @@ func ResetPasswordSendMail(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusBadRequest, gin.H{"message": "Success"})
+	c.JSON(http.StatusOK, gin.H{"message": "Success"})
 }
 
 func ResetPasswordSetPassword(c *gin.Context) {
+	var requestJSON dto.ResetPasswordNewPasswordDTO
+
+	if err := c.ShouldBindJSON(&requestJSON); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := auth.HandleResetPassword(requestJSON.Token, requestJSON.Password); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"error": "Password reseted successfully!"})
 
 }
