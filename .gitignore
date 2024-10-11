@@ -2,3 +2,4 @@ test
 disk
 prod.db
 .env
+/cmd/main.exe
