@@ -24,10 +24,6 @@ func CreateNewUser(userDTO *dto.UserRequestDTO) (models.User, error) {
 		return user, errors.New("user already registered with this username")
 	}
 
-	if user, err := GetUserByRegistrationNumber(userDTO.RegistrationNumber); err == nil {
-		return user, errors.New("user already registered with this Registration number")
-	}
-
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userDTO.Password), bcrypt.DefaultCost)
 
 	if err != nil {
@@ -47,17 +43,16 @@ func CreateNewUser(userDTO *dto.UserRequestDTO) (models.User, error) {
 		return models.User{}, errors.New("internal server error")
 	}
 
-	otp := generateOTP(6)
+	otp := GenerateOTP(6)
 
 	newUser := models.User{
-		Username:           userDTO.Name,
-		Email:              userDTO.Email,
-		PassPhrase:         string(hashedPassPhrase),
-		Password:           string(hashedPassword),
-		PubKey:             pubKey,
-		PrivateKeyPath:     privateKeyPath,
-		RegistrationNumber: userDTO.RegistrationNumber,
-		OTP:                otp,
+		Username:       userDTO.Name,
+		Email:          userDTO.Email,
+		PassPhrase:     string(hashedPassPhrase),
+		Password:       string(hashedPassword),
+		PubKey:         pubKey,
+		PrivateKeyPath: privateKeyPath,
+		OTP:            otp,
 	}
 
 	html := service.ProcessOTPEmail(otp, userDTO.Name)
@@ -182,16 +177,17 @@ func ResetPasswordGenerateLink(userid uint) (bool, error) {
 		return false, errors.New("User is not active")
 	}
 
-	db.GetDB().Where("user_id = ?", user.ID).Delete(&models.ResetPassword{})
+	db.GetDB().Where("user_id = ?", user.ID).Delete(&models.ResetToken{})
 
 	token := uuid.New().String()
 	currentTime := time.Now().UTC()
 	newTime := currentTime.Add(30 * time.Minute).UTC()
 
-	resetPasssword := models.ResetPassword{
+	resetPasssword := models.ResetToken{
 		UserId:     user.ID,
 		ResetToken: token,
 		ExpireDate: newTime,
+		Type:       "PasswordReset",
 	}
 
 	if err := db.GetDB().Create(&resetPasssword).Error; err != nil {
@@ -212,8 +208,8 @@ func ResetPasswordGenerateLink(userid uint) (bool, error) {
 }
 
 func HandleResetPassword(token string, newPassword string) error {
-	var resetPassword models.ResetPassword
-	if err := db.GetDB().Where("reset_token = ?", token).First(&resetPassword).Error; err != nil {
+	var resetPassword models.ResetToken
+	if err := db.GetDB().Where("reset_token = ?", token).Where("type = ?", "PasswordReset").First(&resetPassword).Error; err != nil {
 		return errors.New("Invalid password reset link")
 	}
 
@@ -237,13 +233,13 @@ func HandleResetPassword(token string, newPassword string) error {
 
 	db.GetDB().Model(&models.User{}).Where("id = ?", user.ID).Update("password", string(hashedPassword))
 	// db.GetDB().Where("reset_token = ?", token).Delete(&models.ResetPassword{})
-	db.GetDB().Unscoped().Where("reset_token = ?", token).Delete(&models.ResetPassword{})
+	db.GetDB().Unscoped().Where("reset_token = ?", token).Where("type = ?", "PasswordReset").Delete(&models.ResetToken{})
 
 	return nil
 
 }
 
-func generateOTP(length int) string {
+func GenerateOTP(length int) string {
 	rand.Seed(uint64(time.Now().UnixNano()))
 	const digits = "0123456789"
 	otp := make([]byte, length)

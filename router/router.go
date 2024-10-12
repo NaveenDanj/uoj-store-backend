@@ -30,6 +30,7 @@ func SetupRouter() *gin.Engine {
 		authApi.POST("/verify-account", handlers.VerifyAccount)
 		authApi.POST("/reset-password-send-link", handlers.ResetPasswordSendMail)
 		authApi.POST("/reset-password", handlers.ResetPasswordSetPassword)
+		authApi.POST("/admin-account-setup", handlers.AdminAccountSetup)
 		authApi.GET("/current-user", middlewares.UserAuthRequired(), handlers.GetCurrentUser)
 		authApi.GET("/get-user-pubkey/:userId", middlewares.UserAuthRequired(), handlers.GetUserPublicKey)
 		authApi.POST("/logout", middlewares.UserAuthRequired(), handlers.Logout)
@@ -54,9 +55,10 @@ func SetupRouter() *gin.Engine {
 
 	adminApi := r.Group("/api/admin")
 	adminApi.Use(middlewares.AdminUserAuthRequired())
+	// shareApi.Use(middlewares.UserAuthRequired())
 	{
 		adminApi.POST("/change-account-status", handlers.ActivateAccount)
-		adminApi.POST("/create-admin", handlers.ActivateAccount)
+		adminApi.POST("/create-admin", handlers.CreateAdminUser)
 	}
 
 	return r
