@@ -13,8 +13,8 @@ type UserSignInDTO struct {
 }
 
 type VerfyAccountDTO struct {
-	UserId string `json:"user_id" binding:"required"`
-	OTP    string `json:"otp" binding:"required"`
+	Email string `json:"email" binding:"required,email"`
+	OTP   string `json:"otp" binding:"required"`
 }
 
 type ResetPasswordSendMailDTO struct {

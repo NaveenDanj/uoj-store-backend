@@ -162,18 +162,18 @@ func VerifyAccount(c *gin.Context) {
 	var requestJSON dto.VerfyAccountDTO
 
 	if err := c.ShouldBindJSON(&requestJSON); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	res := auth.VerifyAccount(requestJSON.OTP, requestJSON.UserId)
+	res := auth.VerifyAccount(requestJSON.OTP, requestJSON.Email)
 
 	if !res {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Account verification failed"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Account verification failed"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"error": "Account verified successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Account verified successfully"})
 	return
 
 }
@@ -182,29 +182,29 @@ func ResetPasswordSendMail(c *gin.Context) {
 	var requestJSON dto.ResetPasswordSendMailDTO
 
 	if err := c.ShouldBindJSON(&requestJSON); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
 	user, err := auth.GetUserByEmail(requestJSON.Email)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
 	if !user.IsVerified {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to send reset password link"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Unable to send reset password link"})
 		return
 	}
 
 	if !user.IsActive {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to send reset password link"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Unable to send reset password link"})
 		return
 	}
 
 	if _, err := auth.ResetPasswordGenerateLink(user.ID); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to send reset password link"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Unable to send reset password link"})
 		return
 	}
 
@@ -215,15 +215,15 @@ func ResetPasswordSetPassword(c *gin.Context) {
 	var requestJSON dto.ResetPasswordNewPasswordDTO
 
 	if err := c.ShouldBindJSON(&requestJSON); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
 	if err := auth.HandleResetPassword(requestJSON.Token, requestJSON.Password); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"error": "Password reseted successfully!"})
+	c.JSON(http.StatusOK, gin.H{"message": "Password reseted successfully!"})
 
 }

@@ -139,10 +139,10 @@ func IsBlocked(token string) bool {
 	return tokenRecord.Blocked
 }
 
-func VerifyAccount(otp string, userId string) bool {
+func VerifyAccount(otp string, userEmail string) bool {
 	var user models.User
 
-	if err := db.GetDB().Where("id = ?", userId).First(&user).Error; err != nil {
+	if err := db.GetDB().Where("email= ?", userEmail).First(&user).Error; err != nil {
 		return false
 	}
 
@@ -194,7 +194,7 @@ func ResetPasswordGenerateLink(userid uint) (bool, error) {
 		return false, errors.New("error while generating reset password link")
 	}
 
-	link := "https://happy-island-02da9970f.5.azurestaticapps.net/auth/reset-password/" + token
+	link := "http://localhost:5173/auth/reset-password?token=" + token
 
 	// send the email
 	html := service.ProcessResetPasswordEmail(user.Username, link)
