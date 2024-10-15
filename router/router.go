@@ -61,5 +61,18 @@ func SetupRouter() *gin.Engine {
 		adminApi.POST("/create-admin", handlers.CreateAdminUser)
 	}
 
+	folderApi := r.Group("/api/folder")
+	folderApi.Use(middlewares.UserAuthRequired())
+	{
+		folderApi.POST("/create-folder", handlers.CreateFolder)
+		folderApi.GET("/get-sub-folders/:parentId", handlers.GetSubFolders)
+		folderApi.POST("/rename-folder", handlers.RenameFolder)
+		folderApi.DELETE("/delete-folder", handlers.DeleteFolder)
+		// folderApi.GET("/get-user-folders", handlers.GetUserFolders)
+		// folderApi.GET("/get-folder/:folderId", handlers.GetFolder)
+		// folderApi.PUT("/update-folder/:folderId", handlers.UpdateFolder)
+		// folderApi.DELETE("/delete-folder/:folderId", handlers.DeleteFolder)
+	}
+
 	return r
 }

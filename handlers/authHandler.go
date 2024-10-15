@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"net/http"
+	"peer-store/db"
 	"peer-store/dto"
+	"peer-store/models"
 	"peer-store/service/auth"
 
 	"github.com/gin-gonic/gin"
@@ -35,6 +37,18 @@ func CreateNewUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
+		return
+	}
+
+	newFolder := models.Folder{
+		Name:          "root",
+		UserId:        user.ID,
+		ParentID:      nil,
+		SpecialFolder: "ROOT_FOLDER",
+	}
+
+	if err := db.GetDB().Create(&newFolder).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error while creating folder DB record"})
 		return
 	}
 
@@ -174,7 +188,6 @@ func VerifyAccount(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Account verified successfully"})
-	return
 
 }
 

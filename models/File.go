@@ -26,10 +26,8 @@ type File struct {
 
 type Folder struct {
 	gorm.Model
-	ID        uint      `json:"id" gorm:"primaryKey;autoIncrement"`
-	UserId    uint      `json:"user_id"`
-	Name      string    `json:"name" gorm:"not null"`
-	ParentID  *uint     `json:"parent_id" gorm:"index"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	UserId        uint   `json:"user_id"`
+	Name          string `json:"name" gorm:"not null"`
+	ParentID      *uint  `json:"parent_id" gorm:"index"`
+	SpecialFolder string `json:"special_folder"`
 }
