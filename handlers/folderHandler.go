@@ -34,7 +34,7 @@ func CreateFolder(c *gin.Context) {
 	}
 
 	if exist, _ := folder.CheckFolderNameExist(requestDto.Name, f.ID, user.(models.User).ID); exist {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Filename already exists"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Folder name already exists"})
 		return
 	}
 
@@ -177,5 +177,28 @@ func MoveFolder(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Folder moved successfully!",
 	})
+
+}
+
+func GetFolderItems(c *gin.Context) {
+	id := c.Param("id")
+
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "id is required",
+		})
+		return
+	}
+
+	user, _ := c.Get("currentUser")
+
+	folders, files, err := folder.GetFolderItems(id, user.(models.User).ID)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Eror while fetching files and folders!"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"files": files, "folders": folders})
 
 }

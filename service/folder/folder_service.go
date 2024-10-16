@@ -69,11 +69,7 @@ func CheckFolderNameExist(folderName string, parentId uint, userId uint) (bool, 
 func DeleteFilesAndFoldersInsideFolder(folderId uint, user models.User) error {
 
 	// delete the folders
-	if err := db.GetDB().
-		Unscoped().
-		Where("user_id = ?", user.ID).
-		Where("parent_id = ?", folderId).
-		Delete(&models.Folder{}).Error; err != nil {
+	if err := db.GetDB().Unscoped().Where("user_id = ?", user.ID).Where("parent_id = ?", folderId).Delete(&models.Folder{}).Error; err != nil {
 		return err
 	}
 
@@ -89,6 +85,10 @@ func DeleteFilesAndFoldersInsideFolder(folderId uint, user models.User) error {
 		if err := storage.FileDeleteService(string(file.ID), &user); err != nil {
 			return err
 		}
+	}
+
+	if err := db.GetDB().Unscoped().Where("user_id = ?", user.ID).Where("id = ?", folderId).Delete(&models.Folder{}).Error; err != nil {
+		return err
 	}
 
 	return nil
@@ -115,5 +115,22 @@ func MoveFolder(folderId uint, destination_folder_id uint, userId uint) error {
 	}
 
 	return nil
+
+}
+
+func GetFolderItems(folderId string, userId uint) ([]*models.Folder, []*models.File, error) {
+
+	var folders []*models.Folder
+	var files []*models.File
+
+	if err := db.GetDB().Model(&models.Folder{}).Where("user_id  = ?", userId).Where("parent_id = ?", folderId).Where("id <> ?", folderId).Find(&folders).Error; err != nil {
+		return folders, files, err
+	}
+
+	if err := db.GetDB().Model(&models.File{}).Where("user_id  = ?", userId).Where("folder_id = ?", folderId).Find(&files).Error; err != nil {
+		return folders, files, err
+	}
+
+	return folders, files, nil
 
 }

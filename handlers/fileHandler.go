@@ -56,7 +56,7 @@ func UploadFile(c *gin.Context) {
 		return
 	}
 
-	UploadedFileData, err := storage.StoreUploadedFile(mimeType, &metaData, &userObj, requestForm.PassPhrase)
+	UploadedFileData, err := storage.StoreUploadedFile(mimeType, &metaData, &userObj, requestForm.PassPhrase, requestForm.FolderId)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to upload file : " + err.Error()})

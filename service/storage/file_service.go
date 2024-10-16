@@ -74,7 +74,7 @@ func FileUploader(file multipart.File, header *multipart.FileHeader) (FileUpload
 
 }
 
-func StoreUploadedFile(mimeData string, fileData *FileUploadMetaData, user *models.User, passPhrase string) (*models.File, error) {
+func StoreUploadedFile(mimeData string, fileData *FileUploadMetaData, user *models.User, passPhrase string, folder_id uint) (*models.File, error) {
 
 	fileId := uuid.New().String()
 
@@ -121,6 +121,7 @@ func StoreUploadedFile(mimeData string, fileData *FileUploadMetaData, user *mode
 	}
 
 	newMetaData := models.File{
+		FolderID:      folder_id,
 		FileId:        fileId,
 		UserId:        user.ID,
 		OriginalName:  fileData.Filename,

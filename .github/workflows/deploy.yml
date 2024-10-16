@@ -1,0 +1,39 @@
+name: Build and Deploy to AWS Lightsail
+
+on:
+  push:
+    branches:
+      - main # Adjust to the branch you want to use
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Go environment
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.22.1" # Adjust to the Go version you need
+
+      # Step 3: Build the project
+      # Assuming the main entry point is in the cmd folder (adjust path as needed)
+      - name: Build Go project
+        run: go build -o myapp ./cmd/main.go # Replace 'your_main_package' with your actual entry point
+
+      # Step 4: Add SSH key for deployment
+      - name: Add SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          known_hosts: ${{ secrets.LIGHTSAIL_IP }}
+
+      # Step 5: Deploy to AWS Lightsail
+      - name: Deploy to AWS Lightsail
+        run: |
+          scp -o StrictHostKeyChecking=no -r ./myapp ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/myapp
+          ssh -o StrictHostKeyChecking=no ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_IP }} "sudo systemctl restart myapp.service"

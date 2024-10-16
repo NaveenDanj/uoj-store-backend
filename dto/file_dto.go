@@ -2,6 +2,7 @@ package dto
 
 type FileUploadDTO struct {
 	PassPhrase string `form:"passPhrase" binding:"required"`
+	FolderId   uint   `form:"folder_id" binding:"required"`
 }
 
 type FileDownloadRequestDTO struct {
