@@ -17,8 +17,8 @@ func main() {
 		})))
 	}()
 
-	log.Fatal(http.ListenAndServeTLS(":443", "/etc/ssl/certs/selfsigned.crt", "/etc/ssl/private/selfsigned.key", nil))
-
 	r := router.SetupRouter()
-	r.Run(":5001")
+	// r.Run(":5001")
+	log.Fatal(http.ListenAndServeTLS(":443", "/etc/ssl/certs/selfsigned.crt", "/etc/ssl/private/selfsigned.key", r))
+
 }
