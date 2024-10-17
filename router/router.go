@@ -18,6 +18,10 @@ func SetupRouter() *gin.Engine {
 		AllowCredentials: true,
 	}))
 
+	r.OPTIONS("/*cors", func(c *gin.Context) {
+		c.AbortWithStatus(204)
+	})
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "pong"})
 	})
