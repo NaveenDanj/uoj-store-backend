@@ -22,6 +22,14 @@ func SetupRouter() *gin.Engine {
 		c.AbortWithStatus(204)
 	})
 
+	r.OPTIONS("/api/*cors", func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "http://15.206.79.187")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		c.AbortWithStatus(204) // Return status 204 with no content for OPTIONS preflight
+	})
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "pong"})
 	})
