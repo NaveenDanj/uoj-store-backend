@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"log"
 	"net/http"
 	"peer-store/service/auth"
 	"strings"
@@ -10,6 +11,10 @@ import (
 
 func UserAuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
+
+		for key, value := range c.Request.Header {
+			log.Printf("%s: %s\n", key, value)
+		}
 
 		authToken := c.GetHeader("Authorization")
 
