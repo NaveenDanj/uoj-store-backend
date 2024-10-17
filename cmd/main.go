@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"peer-store/db"
 	"peer-store/router"
-	"net/http"
 )
 
 func main() {

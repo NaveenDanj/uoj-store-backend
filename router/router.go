@@ -68,10 +68,6 @@ func SetupRouter() *gin.Engine {
 		folderApi.POST("/rename-folder", handlers.RenameFolder)
 		folderApi.DELETE("/delete-folder", handlers.DeleteFolder)
 		folderApi.GET("/get-folder-items/:id", handlers.GetFolderItems)
-		// folderApi.GET("/get-user-folders", handlers.GetUserFolders)
-		// folderApi.GET("/get-folder/:folderId", handlers.GetFolder)
-		// folderApi.PUT("/update-folder/:folderId", handlers.UpdateFolder)
-		// folderApi.DELETE("/delete-folder/:folderId", handlers.DeleteFolder)
 	}
 
 	return r
