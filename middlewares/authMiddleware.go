@@ -3,6 +3,7 @@ package middlewares
 import (
 	"net/http"
 	"peer-store/service/auth"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +18,14 @@ func UserAuthRequired() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+
+		if authToken == "" || !strings.HasPrefix(authToken, "Bearer ") {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+			c.Abort()
+			return
+		}
+
+		authToken = strings.TrimPrefix(authToken, "Bearer ")
 
 		_, username, err := auth.VerifyJWT(authToken)
 
