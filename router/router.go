@@ -1,6 +1,7 @@
 package router
 
 import (
+	"log"
 	"peer-store/handlers"
 	"peer-store/middlewares"
 
@@ -12,19 +13,19 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-		AllowAllOrigins:  true,
+		AllowOrigins:     []string{"http://15.206.79.187", "http://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,
 		ExposeHeaders:    []string{"Authorization"},
 	}))
 
-	r.OPTIONS("/*path", func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type")
-		c.Header("Access-Control-Allow-Credentials", "true")
-		c.AbortWithStatus(204)
+	r.Use(func(c *gin.Context) {
+		log.Printf("Request from origin: %s", c.Request.Header.Get("Origin"))
+		if c.Request.Method == "OPTIONS" {
+			log.Println("CORS preflight request")
+		}
+		c.Next()
 	})
 
 	r.GET("/ping", func(c *gin.Context) {
