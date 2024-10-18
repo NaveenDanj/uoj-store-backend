@@ -35,12 +35,13 @@ jobs:
       # Step 5: Copy files to a temporary directory on AWS Lightsail
       - name: Copy files to a temporary directory
         run: |
-          scp -o StrictHostKeyChecking=no -r ./myapp ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/myapp_tmp
+          scp -o StrictHostKeyChecking=no ./myapp ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/myapp
 
       # Step 6: Move files to the target directory and restart the service
       - name: Deploy and restart service
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
+            sudo mkdir -p /home/ubuntu/myapp_tmp  # Create directory if it doesn't exist
             sudo systemctl stop myapp.service
             mv /home/ubuntu/myapp_tmp/* /home/ubuntu/myapp/
             sudo systemctl start myapp.service
