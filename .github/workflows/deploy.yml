@@ -33,9 +33,14 @@ jobs:
           known_hosts: ${{ secrets.LIGHTSAIL_IP }}
 
       # Step 5: Copy files to a temporary directory on AWS Lightsail
-      - name: Copy files to a temporary directory
+      - name: Copy binary to Lightsail
         run: |
-          scp -o StrictHostKeyChecking=no ./myapp ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/myapp
+          ssh -o StrictHostKeyChecking=no ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
+            sudo systemctl stop myapp.service  # Stop the application service
+            scp -o StrictHostKeyChecking=no ./myapp ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/myapp_tmp/myapp  # Copy to a temporary directory
+            sudo mv /home/ubuntu/myapp_tmp/myapp /home/ubuntu/myapp  # Move the new binary to the target directory
+            sudo systemctl start myapp.service  # Start the application service
+          EOF
 
       # Step 6: Move files to the target directory and restart the service
       - name: Deploy and restart service
