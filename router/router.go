@@ -28,11 +28,26 @@ func SetupRouter() *gin.Engine {
 		c.Next()
 	})
 
+	r.OPTIONS("/*path", func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "http://15.206.79.187") // Match your frontend origin
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		c.AbortWithStatus(204)
+	})
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "pong"})
 	})
 
 	authApi := r.Group("/api/auth")
+	authApi.Use(func(c *gin.Context) {
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	})
 	{
 		authApi.POST("/sign-up", handlers.CreateNewUser)
 		authApi.POST("/sign-in", handlers.UserSignIn)
