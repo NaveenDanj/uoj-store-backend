@@ -58,6 +58,7 @@ func SetupRouter() *gin.Engine {
 		authApi.GET("/current-user", middlewares.UserAuthRequired(), handlers.GetCurrentUser)
 		authApi.GET("/get-user-pubkey/:userId", middlewares.UserAuthRequired(), handlers.GetUserPublicKey)
 		authApi.POST("/logout", middlewares.UserAuthRequired(), handlers.Logout)
+		authApi.POST("/check-passphrase", middlewares.UserAuthRequired(), handlers.CheckPassPhrase)
 	}
 
 	fileApi := r.Group("/api/file")
@@ -92,6 +93,16 @@ func SetupRouter() *gin.Engine {
 		folderApi.POST("/rename-folder", handlers.RenameFolder)
 		folderApi.DELETE("/delete-folder", handlers.DeleteFolder)
 		folderApi.GET("/get-folder-items/:id", handlers.GetFolderItems)
+	}
+
+	analyticsApi := r.Group("/api/analytics")
+	analyticsApi.Use(middlewares.UserAuthRequired())
+	{
+		// folderApi.POST("/create-folder", handlers.CreateFolder)
+		// folderApi.GET("/get-sub-folders/:parentId", handlers.GetSubFolders)
+		// folderApi.POST("/rename-folder", handlers.RenameFolder)
+		// folderApi.DELETE("/delete-folder", handlers.DeleteFolder)
+		// folderApi.GET("/get-folder-items/:id", handlers.GetFolderItems)
 	}
 
 	return r

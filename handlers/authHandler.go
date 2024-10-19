@@ -240,3 +240,28 @@ func ResetPasswordSetPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Password reseted successfully!"})
 
 }
+
+func CheckPassPhrase(c *gin.Context) {
+	var requestJSON dto.PassPhraseDTO
+
+	if err := c.ShouldBindJSON(&requestJSON); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	user, _ := c.Get("currentUser")
+
+	err := bcrypt.CompareHashAndPassword([]byte(user.(models.User).PassPhrase), []byte(requestJSON.PassPhrase))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Passphrase mismatch. Invalid passphrase",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Passphrase is valid",
+	})
+
+}

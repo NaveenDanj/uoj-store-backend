@@ -25,3 +25,7 @@ type ResetPasswordNewPasswordDTO struct {
 	Password string `json:"password" binding:"required,min=8"`
 	Token    string `json:"token" binding:"required"`
 }
+
+type PassPhraseDTO struct {
+	PassPhrase string `json:"pass_phrase" binding:"required"`
+}
