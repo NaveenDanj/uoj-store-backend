@@ -35,17 +35,26 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           known_hosts: ${{ secrets.LIGHTSAIL_IP }}
 
-      # Step 6: Copy binary to Lightsail
+      # Step 6: Create temporary directory on Lightsail
+      - name: Create temporary directory
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
+            sudo mkdir -p /home/ubuntu/myapp_tmp
+            sudo chown -R $USER:$USER /home/ubuntu/myapp_tmp
+          EOF
+
+      # Step 7: Copy binary to Lightsail
       - name: Copy binary to Lightsail
         run: |
           scp -o StrictHostKeyChecking=no ./myapp ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_IP }}:/home/ubuntu/myapp_tmp/myapp
 
-      # Step 7: Deploy and restart service
+      # Step 8: Deploy and restart service
       - name: Deploy and restart service
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_IP }} << 'EOF'
-            sudo systemctl stop myapp.service
-            sudo rm -rf /home/ubuntu/myapp
-            sudo mv /home/ubuntu/myapp_tmp/myapp /home/ubuntu/myapp
-            sudo systemctl start myapp.service
+            set -e  # Exit on error
+            sudo systemctl stop myapp.service || true  # Stop the application service, ignore if it fails
+            sudo rm -rf /home/ubuntu/myapp  # Remove the old application
+            sudo mv /home/ubuntu/myapp_tmp/myapp /home/ubuntu/myapp  # Move the new binary to the target directory
+            sudo systemctl start myapp.service  # Start the application service
           EOF
