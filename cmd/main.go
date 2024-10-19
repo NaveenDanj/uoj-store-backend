@@ -13,6 +13,7 @@ func main() {
 	db.SeedAdminAccount()
 
 	r := router.SetupRouter()
+	r.MaxMultipartMemory = 100 << 20
 
 	r.Use(func(c *gin.Context) {
 		log.Printf("Incoming request: %s %s from %s", c.Request.Method, c.Request.URL.Path, c.ClientIP())
