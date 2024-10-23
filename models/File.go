@@ -22,6 +22,7 @@ type File struct {
 	IsFavourite   bool      `json:"is_favourite"`
 	IsDeleted     bool      `json:"is_deleted"`
 	IsPublic      bool      `json:"is_public"`
+	IsInSession   bool      `json:"is_in_session"`
 }
 
 type Folder struct {

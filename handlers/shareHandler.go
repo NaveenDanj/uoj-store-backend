@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"peer-store/db"
 	"peer-store/dto"
 	"peer-store/models"
 	"peer-store/service/storage"
@@ -85,5 +86,42 @@ func DownloadSharedFile(c *gin.Context) {
 
 	storage.DeleteFile(path)
 	storage.DeleteFolder("./disk/public/" + fileId)
+
+}
+
+func GetUsersToShare(c *gin.Context) {
+
+	query := c.Param("query")
+
+	if query == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Search query is required",
+		})
+		return
+	}
+
+	user, _ := c.Get("currentUser")
+
+	var users []models.User
+
+	if err := db.GetDB().Model(&models.User{}).
+		Where("username LIKE ? OR email LIKE ?", "%"+query+"%", "%"+query+"%").
+		Where("is_active = ?", true).
+		Where("is_verified = ?", true).
+		Where("username <> ?", user.(models.User).Username).
+		Limit(5).
+		Find(&users).
+		Error; err != nil {
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error while fetching user data",
+		})
+		return
+
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"users": users,
+	})
 
 }

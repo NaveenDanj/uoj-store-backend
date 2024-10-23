@@ -14,4 +14,7 @@ type User struct {
 	IsVerified     bool   `json:"is_verified"`
 	IsActive       bool   `json:"is_active"`
 	OTP            string `json:"-"`
+	RootFolder     uint   `json:"root_folder"`
+	SessionFolder  uint   `json:"session_folder"`
+	SessionId      string `gorm:"uniqueIndex" json:"session_id"`
 }

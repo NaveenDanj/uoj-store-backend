@@ -76,6 +76,7 @@ func SetupRouter() *gin.Engine {
 		shareApi.POST("/generate-link", handlers.GenerateLink)
 		shareApi.POST("/revoke-link", handlers.RevokeLink)
 		shareApi.GET("/file/:token", handlers.DownloadSharedFile)
+		shareApi.GET("/search-user/:query", handlers.GetUsersToShare)
 	}
 
 	adminApi := r.Group("/api/admin")
