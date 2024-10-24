@@ -29,7 +29,7 @@ func SetupRouter() *gin.Engine {
 	})
 
 	r.OPTIONS("/*path", func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "https://uoj.uk.to") // Match your frontend origin
+		c.Header("Access-Control-Allow-Origin", "https://uoj.uk.to")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type")
 		c.Header("Access-Control-Allow-Credentials", "true")
@@ -65,8 +65,8 @@ func SetupRouter() *gin.Engine {
 	fileApi.Use(middlewares.UserAuthRequired())
 	{
 		fileApi.POST("/upload", handlers.UploadFile)
-		fileApi.POST("/download/", handlers.DownloadFile)
-		fileApi.DELETE("/delete/", handlers.DeleteFile)
+		fileApi.POST("/download", handlers.DownloadFile)
+		fileApi.DELETE("/delete", handlers.DeleteFile)
 		fileApi.GET("/get-user-files", handlers.GetUserFiles)
 	}
 

@@ -44,6 +44,7 @@ func CreateNewUser(userDTO *dto.UserRequestDTO) (models.User, error) {
 	}
 
 	otp := GenerateOTP(6)
+	sessionId := GenerateOTP(8)
 
 	newUser := models.User{
 		Username:       userDTO.Name,
@@ -53,6 +54,7 @@ func CreateNewUser(userDTO *dto.UserRequestDTO) (models.User, error) {
 		PubKey:         pubKey,
 		PrivateKeyPath: privateKeyPath,
 		OTP:            otp,
+		SessionId:      sessionId,
 	}
 
 	html := service.ProcessOTPEmail(otp, userDTO.Name)
@@ -62,7 +64,7 @@ func CreateNewUser(userDTO *dto.UserRequestDTO) (models.User, error) {
 	}
 
 	if err := db.GetDB().Create(&newUser).Error; err != nil {
-		return newUser, nil
+		return newUser, err
 	}
 
 	return newUser, nil
@@ -142,7 +144,7 @@ func IsBlocked(token string) bool {
 func VerifyAccount(otp string, userEmail string) bool {
 	var user models.User
 
-	if err := db.GetDB().Where("email= ?", userEmail).First(&user).Error; err != nil {
+	if err := db.GetDB().Where("email = ?", userEmail).First(&user).Error; err != nil {
 		return false
 	}
 

@@ -47,8 +47,27 @@ func CreateNewUser(c *gin.Context) {
 		SpecialFolder: "ROOT_FOLDER",
 	}
 
+	sessionFolder := models.Folder{
+		Name:          "session",
+		UserId:        user.ID,
+		ParentID:      &newFolder.ID,
+		SpecialFolder: "SESSION_FOLDER",
+	}
+
 	if err := db.GetDB().Create(&newFolder).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error while creating folder DB record"})
+		return
+	}
+
+	if err := db.GetDB().Create(&sessionFolder).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error while creating folder DB record"})
+		return
+	}
+
+	user.SessionFolder = sessionFolder.ID
+	user.RootFolder = newFolder.ID
+	if err := db.GetDB().Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error while updating user"})
 		return
 	}
 
