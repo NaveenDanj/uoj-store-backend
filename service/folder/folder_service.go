@@ -123,11 +123,11 @@ func GetFolderItems(folderId string, userId uint) ([]*models.Folder, []*models.F
 	var folders []*models.Folder
 	var files []*models.File
 
-	if err := db.GetDB().Model(&models.Folder{}).Where("user_id  = ?", userId).Where("parent_id = ?", folderId).Where("id <> ?", folderId).Find(&folders).Error; err != nil {
+	if err := db.GetDB().Model(&models.Folder{}).Where("user_id  = ?", userId).Where("is_deleted = ?", false).Where("parent_id = ?", folderId).Where("id <> ?", folderId).Find(&folders).Error; err != nil {
 		return folders, files, err
 	}
 
-	if err := db.GetDB().Model(&models.File{}).Where("user_id  = ?", userId).Where("folder_id = ?", folderId).Find(&files).Error; err != nil {
+	if err := db.GetDB().Model(&models.File{}).Where("user_id  = ?", userId).Where("folder_id = ?", folderId).Where("is_deleted = ?", false).Find(&files).Error; err != nil {
 		return folders, files, err
 	}
 

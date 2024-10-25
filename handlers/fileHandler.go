@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"peer-store/db"
 	"peer-store/dto"
 	"peer-store/models"
 	"peer-store/service/storage"
@@ -139,4 +140,33 @@ func GetUserFiles(c *gin.Context) {
 	})
 
 	return
+}
+
+func MoveFileToTrash(c *gin.Context) {
+	var requestForm dto.FileTrashRequestDTO
+
+	if err := c.ShouldBindJSON(&requestForm); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, _ := c.Get("currentUser")
+
+	var file models.File
+
+	if err := db.GetDB().Model(&models.File{}).Where("user_id = ?", user.(models.User).ID).Where("file_id = ?", requestForm.FileId).First(&file).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Cannot find the file specified"})
+		return
+	}
+
+	file.IsDeleted = true
+	if err := db.GetDB().Save(&file).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Cannot move file to trash"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "File moved to trash successfully!",
+	})
+
 }

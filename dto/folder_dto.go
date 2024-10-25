@@ -18,3 +18,7 @@ type MoveFolderDTO struct {
 	FolderId            uint `json:"folder_id" binding:"required"`
 	DestinationFolderID uint `json:"destination_folder_id" binding:"required"`
 }
+
+type MoveToTrashDTO struct {
+	FolderId uint `json:"folder_id" binding:"required"`
+}

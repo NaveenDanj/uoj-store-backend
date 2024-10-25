@@ -66,6 +66,7 @@ func SetupRouter() *gin.Engine {
 	{
 		fileApi.POST("/upload", handlers.UploadFile)
 		fileApi.POST("/download", handlers.DownloadFile)
+		fileApi.POST("/move-to-trash", handlers.MoveFileToTrash)
 		fileApi.DELETE("/delete", handlers.DeleteFile)
 		fileApi.GET("/get-user-files", handlers.GetUserFiles)
 	}
@@ -92,7 +93,9 @@ func SetupRouter() *gin.Engine {
 		folderApi.POST("/create-folder", handlers.CreateFolder)
 		folderApi.GET("/get-sub-folders/:parentId", handlers.GetSubFolders)
 		folderApi.POST("/rename-folder", handlers.RenameFolder)
+		folderApi.POST("/move-folder", handlers.MoveFolder)
 		folderApi.DELETE("/delete-folder", handlers.DeleteFolder)
+		folderApi.POST("/move-folder-trash", handlers.MoveToTrash)
 		folderApi.GET("/get-folder-items/:id", handlers.GetFolderItems)
 	}
 

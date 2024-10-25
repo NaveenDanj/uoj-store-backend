@@ -31,3 +31,7 @@ type FileShareRequestDTO struct {
 type LinkRevokeRequestDTO struct {
 	Link string `json:"link" binding:"required"`
 }
+
+type FileTrashRequestDTO struct {
+	FileId string `json:"file_id" binding:"required"`
+}

@@ -31,4 +31,5 @@ type Folder struct {
 	Name          string `json:"name" gorm:"not null"`
 	ParentID      *uint  `json:"parent_id" gorm:"index"`
 	SpecialFolder string `json:"special_folder"`
+	IsDeleted     bool   `json:"is_deleted"`
 }

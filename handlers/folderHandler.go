@@ -169,7 +169,7 @@ func MoveFolder(c *gin.Context) {
 		return
 	}
 
-	if err := folder.DeleteFilesAndFoldersInsideFolder(requestDto.FolderId, user.(models.User)); err != nil {
+	if err := folder.MoveFolder(requestDto.FolderId, requestDto.DestinationFolderID, user.(models.User).ID); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Eror while moving folders!"})
 		return
 	}
@@ -200,5 +200,34 @@ func GetFolderItems(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"files": files, "folders": folders})
+
+}
+
+func MoveToTrash(c *gin.Context) {
+	var requestDto dto.MoveToTrashDTO
+
+	if err := c.ShouldBindJSON(&requestDto); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, _ := c.Get("currentUser")
+
+	fs, err := folder.GetFolderById(requestDto.FolderId, user.(models.User).ID)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Folder not found or you don't have permission to access it"})
+		return
+	}
+
+	fs.IsDeleted = true
+	if err := db.GetDB().Save(&fs).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Cannot move file to the destination"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Folder moved to trash successfully!",
+	})
 
 }
