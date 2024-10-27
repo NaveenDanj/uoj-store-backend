@@ -1,14 +1,15 @@
 package dto
 
 type ActivateAccountRequestDTO struct {
-	UserId uint `json:"userId" binding:"required"`
-	Status bool `json:"status" binding:"required"`
+	UserId uint   `json:"userId" binding:"required"`
+	Status bool   `json:"status"`
+	Role   string `json:"role" binding:"required"`
 }
 
 type CreateAdminRequesDTO struct {
 	Username string `json:"username" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
-	Status   bool   `json:"status" binding:"required"`
+	Status   bool   `json:"status"`
 }
 
 type AdminAccountSetupDTO struct {

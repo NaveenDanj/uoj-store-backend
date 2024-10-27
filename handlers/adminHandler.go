@@ -9,6 +9,7 @@ import (
 	"peer-store/models"
 	"peer-store/service"
 	"peer-store/service/auth"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -32,6 +33,7 @@ func ActivateAccount(c *gin.Context) {
 	}
 
 	user.IsActive = requestDto.Status
+	user.Role = requestDto.Role
 	if err := db.GetDB().Save(&user).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Error while changing account status"})
 		return
@@ -64,6 +66,7 @@ func CreateAdminUser(c *gin.Context) {
 	}
 
 	otp := auth.GenerateOTP(6)
+	sessionId := auth.GenerateOTP(8)
 
 	newAdmin := models.User{
 		Username:       requestDto.Username,
@@ -76,10 +79,42 @@ func CreateAdminUser(c *gin.Context) {
 		IsVerified:     true,
 		IsActive:       false,
 		OTP:            otp,
+		SessionId:      sessionId,
 	}
 
 	if err := db.GetDB().Create(&newAdmin).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while creating new admin user"})
+		return
+	}
+
+	newFolder := models.Folder{
+		Name:          "root",
+		UserId:        newAdmin.ID,
+		ParentID:      nil,
+		SpecialFolder: "ROOT_FOLDER",
+	}
+
+	sessionFolder := models.Folder{
+		Name:          "session",
+		UserId:        newAdmin.ID,
+		ParentID:      &newFolder.ID,
+		SpecialFolder: "SESSION_FOLDER",
+	}
+
+	if err := db.GetDB().Create(&newFolder).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error while creating folder DB record"})
+		return
+	}
+
+	if err := db.GetDB().Create(&sessionFolder).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error while creating folder DB record"})
+		return
+	}
+
+	newAdmin.SessionFolder = sessionFolder.ID
+	newAdmin.RootFolder = newFolder.ID
+	if err := db.GetDB().Save(&newAdmin).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error while updating user"})
 		return
 	}
 
@@ -178,4 +213,43 @@ func AdminAccountSetup(c *gin.Context) {
 	db.GetDB().Unscoped().Where("reset_token = ?", requestDto.Token).Where("type = ?", "AdminAccountCreation").Delete(&models.ResetToken{})
 
 	c.JSON(http.StatusOK, gin.H{"user": user})
+}
+
+func GetAllUsers(c *gin.Context) {
+	var users []models.User
+	db.GetDB().Model(models.User{}).Find(&users)
+	c.JSON(http.StatusOK, gin.H{"users": users})
+}
+
+func GetAllUserFiles(c *gin.Context) {
+
+	var files []models.File
+
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+
+	if page < 1 {
+		page = 1
+	}
+	offset := (page - 1) * limit
+
+	searchQuery := c.Query("search")
+
+	query := db.GetDB().Model(&models.File{})
+
+	if searchQuery != "" {
+		query = query.Where("original_name LIKE ? OR mime_type LIKE ?", "%"+searchQuery+"%", "%"+searchQuery+"%")
+	}
+
+	var total int64
+	query.Count(&total)
+
+	query.Limit(limit).Offset(offset).Find(&files)
+
+	c.JSON(http.StatusOK, gin.H{
+		"files": files,
+		"page":  page,
+		"limit": limit,
+		"total": total,
+	})
 }

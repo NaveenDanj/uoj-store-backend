@@ -35,3 +35,8 @@ type LinkRevokeRequestDTO struct {
 type FileTrashRequestDTO struct {
 	FileId string `json:"file_id" binding:"required"`
 }
+
+type MoveFileRequestDTO struct {
+	FileId              string `json:"file_id" binding:"required"`
+	DestinationFolderID uint   `json:"destination_folder_id" binding:"required"`
+}

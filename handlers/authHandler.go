@@ -6,6 +6,7 @@ import (
 	"peer-store/dto"
 	"peer-store/models"
 	"peer-store/service/auth"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -149,6 +150,15 @@ func GetCurrentUser(c *gin.Context) {
 func Logout(c *gin.Context) {
 
 	authToken := c.GetHeader("Authorization")
+
+	if authToken == "" || !strings.HasPrefix(authToken, "Bearer ") {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+		c.Abort()
+		return
+	}
+
+	authToken = strings.TrimPrefix(authToken, "Bearer ")
+
 	err := auth.BlockToken(authToken)
 
 	if err != nil {
