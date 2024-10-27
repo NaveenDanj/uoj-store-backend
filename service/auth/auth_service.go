@@ -55,6 +55,7 @@ func CreateNewUser(userDTO *dto.UserRequestDTO) (models.User, error) {
 		PrivateKeyPath: privateKeyPath,
 		OTP:            otp,
 		SessionId:      sessionId,
+		SessionTime:    30,
 	}
 
 	html := service.ProcessOTPEmail(otp, userDTO.Name)

@@ -17,4 +17,5 @@ type User struct {
 	RootFolder     uint   `json:"root_folder"`
 	SessionFolder  uint   `json:"session_folder"`
 	SessionId      string `gorm:"uniqueIndex" json:"session_id"`
+	SessionTime    uint   `json:"session_time"`
 }

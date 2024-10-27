@@ -58,6 +58,9 @@ func SetupRouter() *gin.Engine {
 		authApi.GET("/current-user", middlewares.UserAuthRequired(), handlers.GetCurrentUser)
 		authApi.GET("/get-user-pubkey/:userId", middlewares.UserAuthRequired(), handlers.GetUserPublicKey)
 		authApi.POST("/logout", middlewares.UserAuthRequired(), handlers.Logout)
+		authApi.GET("/user-notifications", middlewares.UserAuthRequired(), handlers.GetUserNotifications)
+		authApi.GET("/notifications-mark-as-read", middlewares.UserAuthRequired(), handlers.MarkNotificationAsRead)
+		authApi.POST("/update-user-profile", middlewares.UserAuthRequired(), handlers.UpdateUserProfile)
 		authApi.POST("/check-passphrase", middlewares.UserAuthRequired(), handlers.CheckPassPhrase)
 	}
 

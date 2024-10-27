@@ -5,6 +5,7 @@ import (
 	"peer-store/db"
 	"peer-store/dto"
 	"peer-store/models"
+	"peer-store/service"
 	"peer-store/service/storage"
 
 	"github.com/gin-gonic/gin"
@@ -63,6 +64,8 @@ func UploadFile(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to upload file : " + err.Error()})
 		return
 	}
+
+	service.CreateNewNotification(user.(models.User).ID, "New file uploaded successfully")
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "File uploaded successfully",
@@ -204,5 +207,13 @@ func MoveFile(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "File moved successfully!",
 	})
+
+}
+
+
+func ChangeFileFavState(c *gin.Context){
+
+	
+
 
 }

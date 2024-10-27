@@ -5,6 +5,7 @@ import (
 	"peer-store/db"
 	"peer-store/dto"
 	"peer-store/models"
+	"peer-store/service"
 	"peer-store/service/folder"
 
 	"github.com/gin-gonic/gin"
@@ -49,6 +50,8 @@ func CreateFolder(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error while creating folder DB record"})
 		return
 	}
+
+	service.CreateNewNotification(user.(models.User).ID, "New folder '"+newFolder.Name+"' created successfully")
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "New folder created successfully!",

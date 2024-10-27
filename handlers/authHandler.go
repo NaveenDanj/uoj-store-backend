@@ -294,3 +294,50 @@ func CheckPassPhrase(c *gin.Context) {
 	})
 
 }
+
+func GetUserNotifications(c *gin.Context) {
+	user, _ := c.Get("currentUser")
+	var n []models.Notification
+	db.GetDB().Model(models.Notification{}).Where("user_id = ?", user.(models.User).ID).Where("is_read", false).Find(&n)
+	c.JSON(http.StatusOK, gin.H{"notifications": n})
+}
+
+func MarkNotificationAsRead(c *gin.Context) {
+	user, _ := c.Get("currentUser")
+	db.GetDB().Model(models.Notification{}).Where("user_id = ?", user.(models.User).ID).Where("is_read", false).Update("is_read", true)
+	c.JSON(http.StatusOK, gin.H{"message": "Notifications set as read"})
+}
+
+func UpdateUserProfile(c *gin.Context) {
+	var requestJSON dto.UpdateUserProfileRequestDTO
+
+	if err := c.ShouldBindJSON(&requestJSON); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	user_, _ := c.Get("currentUser")
+	user, err := auth.GetUserByUsername(user_.(models.User).Username)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if requestJSON.TimoutTime < 5 || requestJSON.TimoutTime > 30 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Timeout time should be within 5 miniutes to 30 minutes",
+		})
+		return
+	}
+
+	user.SessionTime = requestJSON.TimoutTime
+	if err := db.GetDB().Save(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+	}
+
+}

@@ -29,3 +29,7 @@ type ResetPasswordNewPasswordDTO struct {
 type PassPhraseDTO struct {
 	PassPhrase string `json:"pass_phrase" binding:"required"`
 }
+
+type UpdateUserProfileRequestDTO struct {
+	TimoutTime uint `json:"timeout_time" binding:"required"`
+}

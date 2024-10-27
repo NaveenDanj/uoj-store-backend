@@ -80,6 +80,7 @@ func CreateAdminUser(c *gin.Context) {
 		IsActive:       false,
 		OTP:            otp,
 		SessionId:      sessionId,
+		SessionTime:    30,
 	}
 
 	if err := db.GetDB().Create(&newAdmin).Error; err != nil {
