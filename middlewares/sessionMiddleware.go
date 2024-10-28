@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"log"
 	"net/http"
 	"peer-store/service/auth"
 	"strings"
@@ -8,8 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AdminUserAuthRequired() gin.HandlerFunc {
+func UserSessionAuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
+
+		for key, value := range c.Request.Header {
+			log.Printf("%s: %s\n", key, value)
+		}
 
 		authToken := c.GetHeader("Authorization")
 
@@ -30,13 +35,13 @@ func AdminUserAuthRequired() gin.HandlerFunc {
 		_, username, err := auth.VerifyJWT(authToken)
 
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated 1"})
 			c.Abort()
 			return
 		}
 
-		if auth.IsBlocked(authToken , false) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated"})
+		if auth.IsBlocked(authToken, true) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated 2"})
 			c.Abort()
 			return
 		}
@@ -44,13 +49,7 @@ func AdminUserAuthRequired() gin.HandlerFunc {
 		user, err := auth.GetUserByUsername(username)
 
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated"})
-			c.Abort()
-			return
-		}
-
-		if user.Role != "Admin" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not authorized to perform this action"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated 3"})
 			c.Abort()
 			return
 		}

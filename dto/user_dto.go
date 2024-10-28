@@ -12,6 +12,10 @@ type UserSignInDTO struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type PrivateSessionSignInDTO struct {
+	SessionId uint `json:"session_id" binding:"required"`
+}
+
 type VerfyAccountDTO struct {
 	Email string `json:"email" binding:"required,email"`
 	OTP   string `json:"otp" binding:"required"`

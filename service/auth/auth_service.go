@@ -91,6 +91,15 @@ func GetUserByUsername(username string) (models.User, error) {
 	return user, nil
 }
 
+func GetUserBySessionId(sessionId uint) (models.User, error) {
+	var user models.User
+	if err := db.GetDB().Where("session_id = ?", sessionId).First(&user).Error; err != nil {
+		return user, errors.New("user not found")
+	}
+
+	return user, nil
+}
+
 func GetUserByRegistrationNumber(regNo string) (models.User, error) {
 	var user models.User
 	if err := db.GetDB().Where("registration_number = ?", regNo).First(&user).Error; err != nil {
@@ -134,11 +143,20 @@ func BlockToken(token string) error {
 	return nil
 }
 
-func IsBlocked(token string) bool {
+func IsBlocked(token string, isSession bool) bool {
 	var tokenRecord models.AccessToken
 	if err := db.GetDB().Where("token = ?", token).First(&tokenRecord).Error; err != nil {
 		return true
 	}
+
+	if !isSession && tokenRecord.IsSession {
+		return true
+	}
+
+	if isSession && !tokenRecord.IsSession {
+		return true
+	}
+
 	return tokenRecord.Blocked
 }
 

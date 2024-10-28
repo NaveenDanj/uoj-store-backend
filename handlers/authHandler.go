@@ -32,7 +32,7 @@ func CreateNewUser(c *gin.Context) {
 		return
 	}
 
-	authToken, err := auth.GenerateJWT(user.ID, user.Email)
+	authToken, err := auth.GenerateJWT(user.ID, user.Email, false)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -120,7 +120,55 @@ func UserSignIn(c *gin.Context) {
 		return
 	}
 
-	authToken, err := auth.GenerateJWT(user.ID, user.Username)
+	authToken, err := auth.GenerateJWT(user.ID, user.Username, false)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":   "Login success",
+		"user":      user,
+		"authToken": authToken,
+	})
+
+}
+
+func PrivateSessionSignIn(c *gin.Context) {
+	var requestJSON dto.PrivateSessionSignInDTO
+
+	if err := c.ShouldBindJSON(&requestJSON); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := auth.GetUserBySessionId(requestJSON.SessionId)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if !user.IsVerified {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "user account is not verified",
+		})
+		return
+	}
+
+	if !user.IsActive {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "user account is not activated",
+		})
+		return
+	}
+
+	authToken, err := auth.GenerateJWT(user.ID, user.Username, true)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

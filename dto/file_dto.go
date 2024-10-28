@@ -43,5 +43,4 @@ type MoveFileRequestDTO struct {
 
 type FavFileRequestDTO struct {
 	FileId string `json:"file_id" binding:"required"`
-	Status bool   `json:"destination_folder_id"`
 }

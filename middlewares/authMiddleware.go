@@ -19,7 +19,7 @@ func UserAuthRequired() gin.HandlerFunc {
 		authToken := c.GetHeader("Authorization")
 
 		if authToken == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated 1"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated"})
 			c.Abort()
 			return
 		}
@@ -40,7 +40,7 @@ func UserAuthRequired() gin.HandlerFunc {
 			return
 		}
 
-		if auth.IsBlocked(authToken) {
+		if auth.IsBlocked(authToken, false) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated"})
 			c.Abort()
 			return

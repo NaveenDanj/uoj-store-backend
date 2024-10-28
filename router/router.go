@@ -51,13 +51,16 @@ func SetupRouter() *gin.Engine {
 	{
 		authApi.POST("/sign-up", handlers.CreateNewUser)
 		authApi.POST("/sign-in", handlers.UserSignIn)
+		authApi.POST("/private-session-sign-in", handlers.PrivateSessionSignIn)
 		authApi.POST("/verify-account", handlers.VerifyAccount)
 		authApi.POST("/reset-password-send-link", handlers.ResetPasswordSendMail)
 		authApi.POST("/reset-password", handlers.ResetPasswordSetPassword)
 		authApi.POST("/admin-account-setup", handlers.AdminAccountSetup)
 		authApi.GET("/current-user", middlewares.UserAuthRequired(), handlers.GetCurrentUser)
+		authApi.GET("/session-current-user", middlewares.UserSessionAuthRequired(), handlers.GetCurrentUser)
 		authApi.GET("/get-user-pubkey/:userId", middlewares.UserAuthRequired(), handlers.GetUserPublicKey)
 		authApi.POST("/logout", middlewares.UserAuthRequired(), handlers.Logout)
+		authApi.POST("/session-logout", middlewares.UserSessionAuthRequired(), handlers.Logout)
 		authApi.GET("/user-notifications", middlewares.UserAuthRequired(), handlers.GetUserNotifications)
 		authApi.GET("/notifications-mark-as-read", middlewares.UserAuthRequired(), handlers.MarkNotificationAsRead)
 		authApi.POST("/update-user-profile", middlewares.UserAuthRequired(), handlers.UpdateUserProfile)
@@ -73,6 +76,15 @@ func SetupRouter() *gin.Engine {
 		fileApi.POST("/move-file", handlers.MoveFile)
 		fileApi.DELETE("/delete", handlers.DeleteFile)
 		fileApi.GET("/get-user-files", handlers.GetUserFiles)
+		fileApi.POST("/change-file-fav-state", handlers.ChangeFileFavState)
+	}
+
+	sessionApi := r.Group("/api/session")
+	sessionApi.Use(middlewares.UserSessionAuthRequired())
+	{
+		sessionApi.POST("/upload-session-file", handlers.UploadSessionFile)
+		sessionApi.GET("/get-folder-items/:id", handlers.GetFolderItems)
+
 	}
 
 	shareApi := r.Group("/api/share")

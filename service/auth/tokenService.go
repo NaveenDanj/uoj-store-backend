@@ -10,7 +10,7 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func GenerateJWT(userId uint, username string) (string, error) {
+func GenerateJWT(userId uint, username string, isSession bool) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id":  userId,
 		"username": username,
@@ -26,9 +26,10 @@ func GenerateJWT(userId uint, username string) (string, error) {
 	}
 
 	tokenRecord := models.AccessToken{
-		UserId:  userId,
-		Token:   tokenString,
-		Blocked: false,
+		UserId:    userId,
+		Token:     tokenString,
+		IsSession: isSession,
+		Blocked:   false,
 	}
 
 	if err := db.GetDB().Create(&tokenRecord).Error; err != nil {

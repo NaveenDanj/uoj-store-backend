@@ -74,42 +74,54 @@ func FileUploader(file multipart.File, header *multipart.FileHeader) (FileUpload
 
 }
 
-func StoreUploadedFile(mimeData string, fileData *FileUploadMetaData, user *models.User, passPhrase string, folder_id uint) (*models.File, error) {
-
+func StoreUploadedFile(mimeData string, fileData *FileUploadMetaData, user *models.User, passPhrase string, folder_id uint, shouldEncrypt bool) (*models.File, error) {
 	fileId := uuid.New().String()
 
-	privateKeyRaw, err := pki.DecryptPemFile(user.PrivateKeyPath, passPhrase)
+	// Initialize variables for conditional signature and encryption
+	var signature string
+	var encrypted_data string
+	var err error
 
-	if err != nil {
-		return &models.File{}, err
+	// Encrypt and sign only if shouldEncrypt is true
+	if shouldEncrypt {
+		// Load private key and sign file
+		privateKeyRaw, err := pki.DecryptPemFile(user.PrivateKeyPath, passPhrase)
+		if err != nil {
+			return &models.File{}, err
+		}
+
+		privateKey, err := pki.LoadPrivateKey(privateKeyRaw)
+		if err != nil {
+			return &models.File{}, err
+		}
+
+		dat, err := pki.SignFile(fileData.FilePath, privateKey)
+		signature = string(dat)
+		if err != nil {
+			return &models.File{}, err
+		}
+
+		// Read and encrypt file data
+		rawFileData, err := os.ReadFile(fileData.FilePath)
+		if err != nil {
+			return &models.File{}, err
+		}
+
+		encrypted_data, err = pki.Encrypt(rawFileData, []byte(passPhrase))
+		if err != nil {
+			return &models.File{}, err
+		}
+	} else {
+		// Only read file data if encryption is not required
+		data, err := os.ReadFile(fileData.FilePath)
+		encrypted_data = string(data)
+		if err != nil {
+			return &models.File{}, err
+		}
 	}
 
-	privateKey, err := pki.LoadPrivateKey(privateKeyRaw)
-
-	if err != nil {
-		return &models.File{}, err
-	}
-
-	signature, err := pki.SignFile(fileData.FilePath, privateKey)
-
-	if err != nil {
-		return &models.File{}, err
-	}
-
-	rawFileData, err := os.ReadFile(fileData.FilePath)
-
-	if err != nil {
-		return &models.File{}, err
-	}
-
-	encrypted_data, err := pki.Encrypt(rawFileData, []byte(passPhrase))
-
-	if err != nil {
-		return &models.File{}, err
-	}
-
+	// Create and save the file
 	uploadPath := "./disk/storage/" + fileId
-
 	file, err := os.Create(uploadPath)
 	if err != nil {
 		return &models.File{}, err
@@ -120,6 +132,7 @@ func StoreUploadedFile(mimeData string, fileData *FileUploadMetaData, user *mode
 		return &models.File{}, err
 	}
 
+	// Set up metadata and save to DB
 	newMetaData := models.File{
 		FolderID:      folder_id,
 		FileId:        fileId,
@@ -129,9 +142,13 @@ func StoreUploadedFile(mimeData string, fileData *FileUploadMetaData, user *mode
 		MimeType:      mimeData,
 		UploadDate:    time.Now().UTC(),
 		StoragePath:   uploadPath,
-		FileSignature: signature,
+		FileSignature: []byte(signature),
 		DownloadCount: 0,
 		LastAccessed:  time.Now().UTC(),
+	}
+
+	if !shouldEncrypt {
+		newMetaData.IsPublic = true
 	}
 
 	if err := db.GetDB().Model(models.File{}).Create(&newMetaData).Error; err != nil {
@@ -141,7 +158,6 @@ func StoreUploadedFile(mimeData string, fileData *FileUploadMetaData, user *mode
 	DeleteFolder(fileData.TempFolder)
 
 	return &newMetaData, nil
-
 }
 
 func createFolder(folderPath string) error {
@@ -176,7 +192,7 @@ func DeleteFolder(folderPath string) error {
 
 }
 
-func HandleDownloadProcess(fileId string, user *models.User, passPhrase string) (string, string, error) {
+func HandleDownloadProcess(fileId string, user *models.User, passPhrase string, shouldDecrypt bool) (string, string, error) {
 
 	// check the owner
 	var gotFile models.File
@@ -189,7 +205,7 @@ func HandleDownloadProcess(fileId string, user *models.User, passPhrase string) 
 		return "", "", errors.New("invalid pass phrase")
 	}
 
-	path, mime, _, err := UtilDecryptAndUse(&gotFile, gotFile.StoragePath, []byte(passPhrase), user)
+	path, mime, _, err := UtilDecryptAndUse(&gotFile, gotFile.StoragePath, []byte(passPhrase), user, shouldDecrypt)
 
 	if err != nil {
 		return "", "", errors.New("unauthorized filed alteration detected")
