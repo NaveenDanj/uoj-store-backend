@@ -41,6 +41,12 @@ type MoveFileRequestDTO struct {
 	DestinationFolderID uint   `json:"destination_folder_id" binding:"required"`
 }
 
+type MoveFileFromSessionRequestDTO struct {
+	PassPhrase          string `json:"passPhrase" binding:"required"`
+	FileId              string `json:"file_id" binding:"required"`
+	DestinationFolderID uint   `json:"destination_folder_id" binding:"required"`
+}
+
 type FavFileRequestDTO struct {
 	FileId string `json:"file_id" binding:"required"`
 }

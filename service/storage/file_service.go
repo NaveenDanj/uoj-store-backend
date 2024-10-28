@@ -160,6 +160,60 @@ func StoreUploadedFile(mimeData string, fileData *FileUploadMetaData, user *mode
 	return &newMetaData, nil
 }
 
+func MovePublicFilesToSafe(user *models.User, passPhrase string, folder_id uint, file *models.File) (*models.File, error) {
+
+	privateKeyRaw, err := pki.DecryptPemFile(user.PrivateKeyPath, passPhrase)
+	if err != nil {
+		return &models.File{}, err
+	}
+
+	privateKey, err := pki.LoadPrivateKey(privateKeyRaw)
+	if err != nil {
+		return &models.File{}, err
+	}
+
+	dat, err := pki.SignFile(file.StoragePath, privateKey)
+	signature := string(dat)
+
+	if err != nil {
+		return &models.File{}, err
+	}
+
+	rawFileData, err := os.ReadFile(file.StoragePath)
+	if err != nil {
+		return &models.File{}, err
+	}
+
+	encrypted_data, err := pki.Encrypt(rawFileData, []byte(passPhrase))
+
+	if err != nil {
+		return &models.File{}, err
+	}
+
+	updated_file, err := os.OpenFile(file.StoragePath, os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		return &models.File{}, err
+	}
+
+	defer updated_file.Close()
+
+	_, err = updated_file.WriteString(encrypted_data)
+	if err != nil {
+		return &models.File{}, err
+	}
+
+	fmt.Println("File signature is -> " + signature)
+
+	file.FileSignature = []byte(signature)
+	file.IsPublic = false
+	if err := db.GetDB().Save(&file).Error; err != nil {
+		return &models.File{}, err
+	}
+
+	return file, nil
+
+}
+
 func createFolder(folderPath string) error {
 	// Check if the folder exists
 	if _, err := os.Stat(folderPath); os.IsNotExist(err) {

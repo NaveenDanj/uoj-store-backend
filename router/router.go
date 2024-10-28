@@ -77,6 +77,8 @@ func SetupRouter() *gin.Engine {
 		fileApi.DELETE("/delete", handlers.DeleteFile)
 		fileApi.GET("/get-user-files", handlers.GetUserFiles)
 		fileApi.POST("/change-file-fav-state", handlers.ChangeFileFavState)
+		fileApi.POST("/move-session-file", handlers.MoveFileFromSession)
+
 	}
 
 	sessionApi := r.Group("/api/session")

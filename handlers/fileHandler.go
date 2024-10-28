@@ -321,3 +321,53 @@ func ChangeFileFavState(c *gin.Context) {
 	})
 
 }
+
+func MoveFileFromSession(c *gin.Context) {
+	var requestForm dto.MoveFileFromSessionRequestDTO
+
+	if err := c.ShouldBindJSON(&requestForm); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user_, _ := c.Get("currentUser")
+	user := user_.(models.User)
+
+	if !storage.ValidatePassPhrase(requestForm.PassPhrase, &user) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to upload file : Invalid pass phrase"})
+		return
+	}
+
+	var file models.File
+
+	if err := db.GetDB().Model(&models.File{}).Where("user_id = ?", user.ID).Where("folder_id = ?", user.SessionFolder).Where("file_id = ?", requestForm.FileId).First(&file).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Cannot find the file specified"})
+		return
+	}
+
+	var folder models.Folder
+
+	if err := db.GetDB().Model(&models.Folder{}).Where("id <> ?", user.SessionFolder).Where("user_id = ?", user.ID).Where("id = ?", requestForm.DestinationFolderID).First(&folder).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Cannot find the folder specified"})
+		return
+	}
+
+	__file, err := storage.MovePublicFilesToSafe(&user, requestForm.PassPhrase, requestForm.DestinationFolderID, &file)
+	file = *__file
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	file.FolderID = folder.ID
+	if err := db.GetDB().Save(&file).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Cannot move file"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "File moved successfully!",
+	})
+
+}
