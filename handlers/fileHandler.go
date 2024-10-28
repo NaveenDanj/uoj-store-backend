@@ -160,6 +160,32 @@ func DownloadFile(c *gin.Context) {
 
 }
 
+func DownloadSessionFile(c *gin.Context) {
+
+	var requestForm dto.FileDownloadRequestDTO
+
+	if err := c.ShouldBindJSON(&requestForm); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, _ := c.Get("currentUser")
+	userObj, _ := user.(models.User)
+
+	path, mimeType, err := storage.HandleDownloadProcess(requestForm.FileId, &userObj, requestForm.PassPhrase, false)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Header("Content-Type", mimeType)
+	c.File(path)
+
+	storage.DeleteFile(path)
+	storage.DeleteFolder("./disk/public/" + requestForm.FileId)
+}
+
 func DeleteFile(c *gin.Context) {
 	var requestForm dto.FileDeleteRequestDTO
 

@@ -201,8 +201,10 @@ func HandleDownloadProcess(fileId string, user *models.User, passPhrase string, 
 	}
 
 	// check the passPhrase
-	if !ValidatePassPhrase(passPhrase, user) {
-		return "", "", errors.New("invalid pass phrase")
+	if shouldDecrypt {
+		if !ValidatePassPhrase(passPhrase, user) {
+			return "", "", errors.New("invalid pass phrase")
+		}
 	}
 
 	path, mime, _, err := UtilDecryptAndUse(&gotFile, gotFile.StoragePath, []byte(passPhrase), user, shouldDecrypt)

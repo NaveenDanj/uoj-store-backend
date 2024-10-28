@@ -84,7 +84,7 @@ func SetupRouter() *gin.Engine {
 	{
 		sessionApi.POST("/upload-session-file", handlers.UploadSessionFile)
 		sessionApi.GET("/get-folder-items/:id", handlers.GetFolderItems)
-
+		sessionApi.POST("/download-session-file", handlers.DownloadSessionFile)
 	}
 
 	shareApi := r.Group("/api/share")
