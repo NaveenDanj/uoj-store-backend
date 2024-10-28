@@ -22,3 +22,8 @@ type MoveFolderDTO struct {
 type MoveToTrashDTO struct {
 	FolderId uint `json:"folder_id" binding:"required"`
 }
+
+type RestoreFromTrashDTO struct {
+	ID   string `json:"id" binding:"required"`
+	Type string `json:"type" binding:"required"`
+}

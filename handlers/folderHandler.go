@@ -7,6 +7,7 @@ import (
 	"peer-store/models"
 	"peer-store/service"
 	"peer-store/service/folder"
+	"peer-store/service/storage"
 
 	"github.com/gin-gonic/gin"
 )
@@ -233,4 +234,43 @@ func MoveToTrash(c *gin.Context) {
 		"message": "Folder moved to trash successfully!",
 	})
 
+}
+
+func EmptyTrash(c *gin.Context) {
+	user, _ := c.Get("currentUser")
+	currentUser := user.(models.User)
+	userID := user.(models.User).ID
+
+	var deletedFolders []models.Folder
+	if err := db.GetDB().Where("user_id = ? AND is_deleted = ?", userID, true).Find(&deletedFolders).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error retrieving folders"})
+		return
+	}
+
+	for _, _folder := range deletedFolders {
+		if err := folder.DeleteFilesAndFoldersInsideFolder(_folder.ID, user.(models.User)); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error emptying trash for folders"})
+			return
+		}
+	}
+
+	var deletedFiles []models.File
+	if err := db.GetDB().Where("user_id = ? AND is_deleted = ?", userID, true).Find(&deletedFiles).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error retrieving files"})
+		return
+	}
+
+	for _, file := range deletedFiles {
+		if err := storage.FileDeleteService(file.FileId, &currentUser); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error emptying trash for files"})
+			return
+		}
+
+		if err := db.GetDB().Unscoped().Where("id = ?", file.ID).Delete(&models.File{}).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error deleting file record"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Trash emptied successfully"})
 }

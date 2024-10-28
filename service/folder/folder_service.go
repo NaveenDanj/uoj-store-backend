@@ -2,6 +2,7 @@ package folder
 
 import (
 	"errors"
+	"fmt"
 	"peer-store/db"
 	"peer-store/models"
 	"peer-store/service/storage"
@@ -67,32 +68,39 @@ func CheckFolderNameExist(folderName string, parentId uint, userId uint) (bool, 
 }
 
 func DeleteFilesAndFoldersInsideFolder(folderId uint, user models.User) error {
-
-	// delete the folders
-	if err := db.GetDB().Unscoped().Where("user_id = ?", user.ID).Where("parent_id = ?", folderId).Delete(&models.Folder{}).Error; err != nil {
-		return err
+	
+	var subfolders []models.Folder
+	if err := db.GetDB().Where("user_id = ?", user.ID).Where("parent_id = ?", folderId).Find(&subfolders).Error; err != nil {
+		return fmt.Errorf("error finding subfolders: %w", err)
 	}
 
-	// delete the files
-	var files []*models.File
+	for _, subfolder := range subfolders {
+		if err := DeleteFilesAndFoldersInsideFolder(subfolder.ID, user); err != nil {
+			return fmt.Errorf("error deleting subfolder ID %d: %w", subfolder.ID, err)
+		}
+	}
 
-	if err := db.GetDB().
-		Where("user_id = ?", user.ID).Where("folder_id = ?", folderId).Find(&files).Error; err != nil {
-		return err
+	var files []models.File
+	if err := db.GetDB().Where("user_id = ?", user.ID).Where("folder_id = ?", folderId).Find(&files).Error; err != nil {
+		return fmt.Errorf("error finding files: %w", err)
 	}
 
 	for _, file := range files {
-		if err := storage.FileDeleteService(string(file.ID), &user); err != nil {
-			return err
+		
+		if err := storage.FileDeleteService(file.FileId, &user); err != nil {
+			return fmt.Errorf("error deleting file ID %s: %w", file.FileId, err)
+		}
+
+		if err := db.GetDB().Unscoped().Where("id = ?", file.ID).Delete(&models.File{}).Error; err != nil {
+			return fmt.Errorf("error removing file record for ID %d: %w", file.ID, err)
 		}
 	}
 
 	if err := db.GetDB().Unscoped().Where("user_id = ?", user.ID).Where("id = ?", folderId).Delete(&models.Folder{}).Error; err != nil {
-		return err
+		return fmt.Errorf("error deleting folder ID %d: %w", folderId, err)
 	}
 
 	return nil
-
 }
 
 func MoveFolder(folderId uint, destination_folder_id uint, userId uint) error {

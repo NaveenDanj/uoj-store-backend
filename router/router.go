@@ -78,6 +78,10 @@ func SetupRouter() *gin.Engine {
 		fileApi.GET("/get-user-files", handlers.GetUserFiles)
 		fileApi.POST("/change-file-fav-state", handlers.ChangeFileFavState)
 		fileApi.POST("/move-session-file", handlers.MoveFileFromSession)
+		fileApi.GET("/get-deleted-file", handlers.GetDeletedFilesAndFolders)
+		fileApi.POST("/restore-file", handlers.RestoreFromTrash)
+		fileApi.GET("/empty-trash", handlers.EmptyTrash)
+		fileApi.GET("/get-user-fav", handlers.GetUserFavoritedFiles)
 
 	}
 
@@ -122,8 +126,11 @@ func SetupRouter() *gin.Engine {
 	analyticsApi := r.Group("/api/analytics")
 	analyticsApi.Use(middlewares.UserAuthRequired())
 	{
-		// folderApi.POST("/create-folder", handlers.CreateFolder)
-		// folderApi.GET("/get-sub-folders/:parentId", handlers.GetSubFolders)
+		analyticsApi.GET("/file-usage", handlers.GetTotalStorageByMimeType)
+		analyticsApi.GET("/top-usage", handlers.GetTopFolders)
+		analyticsApi.GET("/top-usage-detailed", handlers.GetTopFoldersDetailed)
+		analyticsApi.GET("/total-usage", handlers.GetTotalStorageUsage)
+		analyticsApi.GET("/largest-files", handlers.GetTopFiles)
 		// folderApi.POST("/rename-folder", handlers.RenameFolder)
 		// folderApi.DELETE("/delete-folder", handlers.DeleteFolder)
 		// folderApi.GET("/get-folder-items/:id", handlers.GetFolderItems)

@@ -134,7 +134,7 @@ func ProcessOTPEmail(otp string, name string) string {
             <p>To verify your account on <strong>UOJ-Store</strong>, please use the following OTP:</p>
             <div class="otp-box">` + otp + `</div>
             <p>This OTP is valid for 10 minutes. Please do not share it with anyone.</p>
-            <a href="https://your-app-link.com" class="button">Access UOJ-Store</a>
+            <a href="https://uoj.uk.to" class="button">Access UOJ-Store</a>
         </div>
         <div class="footer">
             <p>Thank you for using UOJ-Store!</p>
@@ -330,7 +330,7 @@ func ProcessSetupAdminAccountEmail(username string, link string) string {
                         <p>Dear ` + username + `,</p>
                         <p>Welcome to <strong>UOJ-Store</strong>! An admin account has been created for you.</p>
                         <p>To get started, please click the button below to set your password and activate your account:</p>
-                        <a href="https://your-app-link.com/set-password?token=` + link + `" class="button">Set Your Password</a>
+                        <a href="https://uoj.uk.to/auth/admin-account-setup?token=` + link + `" class="button">Set Your Password</a>
                         <p>This invitation will expire in 24 hours. Please do not share this link with anyone.</p>
                     </div>
                     <div class="footer">

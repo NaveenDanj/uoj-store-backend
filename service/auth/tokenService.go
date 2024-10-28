@@ -11,10 +11,17 @@ import (
 )
 
 func GenerateJWT(userId uint, username string, isSession bool) (string, error) {
+
+	user, err := GetUserByUsername(username)
+
+	if err != nil {
+		return "", err
+	}
+
 	claims := jwt.MapClaims{
 		"user_id":  userId,
 		"username": username,
-		"exp":      time.Now().Add(30 * time.Hour * 24).Unix(),
+		"exp":      time.Now().Add(time.Minute * time.Duration(user.SessionTime)).Unix(),
 		"iat":      time.Now().Unix(),
 	}
 
