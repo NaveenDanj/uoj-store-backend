@@ -58,14 +58,14 @@ func CreateNewUser(userDTO *dto.UserRequestDTO) (models.User, error) {
 		SessionTime:    30,
 	}
 
+	if err := db.GetDB().Create(&newUser).Error; err != nil {
+		return newUser, err
+	}
+
 	html := service.ProcessOTPEmail(otp, userDTO.Name)
 
 	if err := service.SendEmail(userDTO.Email, "UOJ-Store Account verification OTP", html); err != nil {
 		return models.User{}, errors.New("error while sending OTP")
-	}
-
-	if err := db.GetDB().Create(&newUser).Error; err != nil {
-		return newUser, err
 	}
 
 	return newUser, nil

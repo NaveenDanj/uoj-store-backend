@@ -32,14 +32,14 @@ func CreateNewUser(c *gin.Context) {
 		return
 	}
 
-	authToken, err := auth.GenerateJWT(user.ID, user.Email, false)
+	// authToken, err := auth.GenerateJWT(user.ID, user.Email, false)
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
+	// if err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"message": err.Error(),
+	// 	})
+	// 	return
+	// }
 
 	newFolder := models.Folder{
 		Name:          "root",
@@ -75,7 +75,7 @@ func CreateNewUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message":   "User account created successfully",
 		"user":      requestJSON,
-		"authToken": authToken,
+		"authToken": "",
 	})
 
 }
