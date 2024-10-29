@@ -18,11 +18,22 @@ func GenerateJWT(userId uint, username string, isSession bool) (string, error) {
 		return "", err
 	}
 
-	claims := jwt.MapClaims{
-		"user_id":  userId,
-		"username": username,
-		"exp":      time.Now().Add(time.Minute * time.Duration(user.SessionTime)).Unix(),
-		"iat":      time.Now().Unix(),
+	var claims jwt.MapClaims
+
+	if isSession {
+		claims = jwt.MapClaims{
+			"user_id":  userId,
+			"username": username,
+			"exp":      time.Now().Add(time.Minute * time.Duration(user.SessionTime)).Unix(),
+			"iat":      time.Now().Unix(),
+		}
+	} else {
+		claims = jwt.MapClaims{
+			"user_id":  userId,
+			"username": username,
+			"exp":      time.Now().Add(30 * time.Hour * 24).Unix(),
+			"iat":      time.Now().Unix(),
+		}
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

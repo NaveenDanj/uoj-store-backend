@@ -35,13 +35,13 @@ func UserSessionAuthRequired() gin.HandlerFunc {
 		_, username, err := auth.VerifyJWT(authToken)
 
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated 1"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated"})
 			c.Abort()
 			return
 		}
 
 		if auth.IsBlocked(authToken, true) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated 2"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated"})
 			c.Abort()
 			return
 		}
@@ -49,7 +49,7 @@ func UserSessionAuthRequired() gin.HandlerFunc {
 		user, err := auth.GetUserByUsername(username)
 
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated 3"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthenticated"})
 			c.Abort()
 			return
 		}
