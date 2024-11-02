@@ -14,10 +14,35 @@ func GetTotalStorageByMimeType(c *gin.Context) {
 	userID := user.(models.User).ID
 
 	mimeCategories := map[string][]string{
-		"image":    {"image/jpeg", "image/png", "image/gif", "image/webp"},
-		"video":    {"video/mp4", "video/avi", "video/mkv", "video/webm"},
-		"audio":    {"audio/mpeg", "audio/wav", "audio/ogg"},
-		"document": {"application/pdf"},
+
+		// Image types
+		"image": {
+			"image/jpeg", "image/png", "image/gif", "image/webp",
+			"image/bmp", "image/tiff", "image/svg+xml", "image/heic",
+		},
+
+		// Video types
+		"video": {
+			"video/mp4", "video/avi", "video/mkv", "video/webm",
+			"video/x-msvideo", "video/quicktime", "video/mpeg", "video/x-matroska",
+		},
+
+		// Audio types
+		"audio": {
+			"audio/mpeg", "audio/wav", "audio/ogg", "audio/mp4",
+			"audio/aac", "audio/flac", "audio/x-ms-wma", "audio/x-wav",
+		},
+
+		// Document types
+		"document": {
+			"application/pdf", "application/msword",
+			"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+			"application/vnd.ms-excel",
+			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+			"application/vnd.ms-powerpoint",
+			"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+			"application/rtf", "text/plain", "text/csv", "text/html", "application/epub+zip",
+		},
 	}
 
 	storageUsage := map[string]float64{
