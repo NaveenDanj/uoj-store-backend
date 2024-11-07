@@ -56,6 +56,7 @@ func CreateNewUser(userDTO *dto.UserRequestDTO) (models.User, error) {
 		OTP:            otp,
 		SessionId:      sessionId,
 		SessionTime:    30,
+		MaxUploadSize:  300,
 	}
 
 	if err := db.GetDB().Create(&newUser).Error; err != nil {
@@ -215,7 +216,7 @@ func ResetPasswordGenerateLink(userid uint) (bool, error) {
 		return false, errors.New("error while generating reset password link")
 	}
 
-	link := "http://localhost:5173/auth/reset-password?token=" + token
+	link := "https://uoj.uk.to/auth/reset-password?token=" + token
 
 	// send the email
 	html := service.ProcessResetPasswordEmail(user.Username, link)

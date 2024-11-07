@@ -18,4 +18,5 @@ type User struct {
 	SessionFolder  uint   `json:"session_folder"`
 	SessionId      string `gorm:"uniqueIndex" json:"session_id"`
 	SessionTime    uint   `json:"session_time"`
+	MaxUploadSize  uint   `json:"max_upload_size"`
 }

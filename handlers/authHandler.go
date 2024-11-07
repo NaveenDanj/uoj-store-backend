@@ -374,7 +374,7 @@ func UpdateUserProfile(c *gin.Context) {
 		return
 	}
 
-	if requestJSON.TimoutTime < 5 || requestJSON.TimoutTime > 30 {
+	if requestJSON.TimoutTime < 1 || requestJSON.TimoutTime > 30 {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Timeout time should be within 5 miniutes to 30 minutes",
 		})

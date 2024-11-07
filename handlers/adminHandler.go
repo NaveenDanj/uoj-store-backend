@@ -34,6 +34,8 @@ func ActivateAccount(c *gin.Context) {
 
 	user.IsActive = requestDto.Status
 	user.Role = requestDto.Role
+	user.MaxUploadSize = requestDto.MaxUploadSize
+
 	if err := db.GetDB().Save(&user).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Error while changing account status"})
 		return
@@ -65,6 +67,11 @@ func CreateAdminUser(c *gin.Context) {
 		return
 	}
 
+	if requestDto.MaxUploadSize > 1000 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "cannot allocate storage size more than 1GB"})
+		return
+	}
+
 	otp := auth.GenerateOTP(6)
 	sessionId := auth.GenerateOTP(8)
 
@@ -81,6 +88,7 @@ func CreateAdminUser(c *gin.Context) {
 		OTP:            otp,
 		SessionId:      sessionId,
 		SessionTime:    30,
+		MaxUploadSize:  requestDto.MaxUploadSize,
 	}
 
 	if err := db.GetDB().Create(&newAdmin).Error; err != nil {
@@ -218,8 +226,33 @@ func AdminAccountSetup(c *gin.Context) {
 
 func GetAllUsers(c *gin.Context) {
 	var users []models.User
-	db.GetDB().Model(models.User{}).Find(&users)
-	c.JSON(http.StatusOK, gin.H{"users": users})
+
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+
+	if page < 1 {
+		page = 1
+	}
+	offset := (page - 1) * limit
+	searchQuery := c.Query("search")
+
+	query := db.GetDB().Model(models.User{})
+
+	if searchQuery != "" {
+		query = query.Where("username LIKE ? OR email LIKE ?", "%"+searchQuery+"%", "%"+searchQuery+"%")
+	}
+
+	var total int64
+	query.Count(&total)
+
+	query.Limit(limit).Offset(offset).Find(&users)
+
+	c.JSON(http.StatusOK, gin.H{
+		"users": users,
+		"page":  page,
+		"limit": limit,
+		"total": total,
+	})
 }
 
 func GetAllUserFiles(c *gin.Context) {

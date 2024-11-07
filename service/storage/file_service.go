@@ -313,3 +313,15 @@ func GetUserFiles(userId uint) ([]*models.File, error) {
 	return files, nil
 
 }
+
+func GetUserStorageUsage(userId uint) (int64, error) {
+
+	var totalFileSize int64
+
+	if err := db.GetDB().Model(&models.File{}).Select("COALESCE(SUM(file_size), 0)").Where("user_id = ? AND is_deleted = ?", userId, false).Scan(&totalFileSize).Error; err != nil {
+		return 0, err
+	}
+
+	return totalFileSize, nil
+
+}

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"peer-store/db"
 	"peer-store/dto"
@@ -34,6 +35,22 @@ func UploadFile(c *gin.Context) {
 
 	if !storage.ValidatePassPhrase(requestForm.PassPhrase, &userObj) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to upload file : Invalid pass phrase"})
+		return
+	}
+
+	userStorageUsage, err := storage.GetUserStorageUsage(userObj.ID)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to upload file : cannot fetch user storage usage"})
+		return
+	}
+
+	fmt.Println("-----------------------------------")
+	fmt.Println("Usage data --- > " + string(int(userStorageUsage+header.Size)) + " > " + string(int(userStorageUsage)))
+	fmt.Println("-----------------------------------")
+
+	if userStorageUsage+header.Size > int64(userObj.MaxUploadSize)*1024*1024 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to upload file : Not enough space on your storage"})
 		return
 	}
 
