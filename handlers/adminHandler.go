@@ -158,9 +158,9 @@ func CreateAdminUser(c *gin.Context) {
 
 	newAdmin.SessionFolder = sessionFolder.ID
 	newAdmin.RootFolder = newFolder.ID
-	user.WorkFolder = workFolder.ID
-	user.PersonalFolder = personalFolder.ID
-	user.AcademicFolder = academicFolder.ID
+	newAdmin.WorkFolder = workFolder.ID
+	newAdmin.PersonalFolder = personalFolder.ID
+	newAdmin.AcademicFolder = academicFolder.ID
 	if err := db.GetDB().Save(&newAdmin).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error while updating user"})
 		return
