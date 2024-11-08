@@ -16,6 +16,9 @@ type User struct {
 	OTP            string `json:"-"`
 	RootFolder     uint   `json:"root_folder"`
 	SessionFolder  uint   `json:"session_folder"`
+	WorkFolder     uint   `json:"work_folder"`
+	PersonalFolder uint   `json:"personal_folder"`
+	AcademicFolder uint   `json:"academic_folder"`
 	SessionId      string `gorm:"uniqueIndex" json:"session_id"`
 	SessionTime    uint   `json:"session_time"`
 	MaxUploadSize  uint   `json:"max_upload_size"`

@@ -1,7 +1,6 @@
 package router
 
 import (
-	"log"
 	"peer-store/handlers"
 	"peer-store/middlewares"
 
@@ -22,9 +21,8 @@ func SetupRouter() *gin.Engine {
 	}))
 
 	r.Use(func(c *gin.Context) {
-		log.Printf("Request from origin: %s", c.Request.Header.Get("Origin"))
 		if c.Request.Method == "OPTIONS" {
-			log.Println("CORS preflight request")
+			// log.Println("CORS preflight request")
 		}
 		c.Next()
 	})

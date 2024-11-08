@@ -45,10 +45,6 @@ func UploadFile(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("-----------------------------------")
-	fmt.Println("Usage data --- > " + string(int(userStorageUsage+header.Size)) + " > " + string(int(userStorageUsage)))
-	fmt.Println("-----------------------------------")
-
 	if userStorageUsage+header.Size > int64(userObj.MaxUploadSize)*1024*1024 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to upload file : Not enough space on your storage"})
 		return
@@ -85,6 +81,28 @@ func UploadFile(c *gin.Context) {
 	}
 
 	service.CreateNewNotification(user.(models.User).ID, "New file uploaded successfully")
+
+	tag, err := service.TagFile(UploadedFileData)
+
+	if err != nil {
+		fmt.Println("-----------------------------------------------------")
+		fmt.Println("Error while requesting from open API : " + err.Error())
+		fmt.Println("-----------------------------------------------------")
+	}
+
+	fmt.Println("Category is -----> " + tag)
+
+	if tag == "work" {
+		UploadedFileData.FolderID = userObj.WorkFolder
+	} else if tag == "personal" {
+		UploadedFileData.FolderID = userObj.PersonalFolder
+	} else if tag == "academic" {
+		UploadedFileData.FolderID = userObj.AcademicFolder
+	}
+
+	if err := db.GetDB().Save(&UploadedFileData).Error; err != nil {
+		fmt.Println("Error while tagging : " + err.Error())
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "File uploaded successfully",
