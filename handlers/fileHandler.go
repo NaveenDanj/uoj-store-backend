@@ -82,26 +82,25 @@ func UploadFile(c *gin.Context) {
 
 	service.CreateNewNotification(user.(models.User).ID, "New file uploaded successfully")
 
-	tag, err := service.TagFile(UploadedFileData)
+	if requestForm.FolderId == userObj.RootFolder {
+		tag, err := service.TagFile(UploadedFileData)
+		if err != nil {
+			fmt.Println("-----------------------------------------------------")
+			fmt.Println("Error while requesting from open API : " + err.Error())
+			fmt.Println("-----------------------------------------------------")
+		}
 
-	if err != nil {
-		fmt.Println("-----------------------------------------------------")
-		fmt.Println("Error while requesting from open API : " + err.Error())
-		fmt.Println("-----------------------------------------------------")
-	}
+		if tag == "work" {
+			UploadedFileData.FolderID = userObj.WorkFolder
+		} else if tag == "personal" {
+			UploadedFileData.FolderID = userObj.PersonalFolder
+		} else if tag == "academic" {
+			UploadedFileData.FolderID = userObj.AcademicFolder
+		}
 
-	fmt.Println("Category is -----> " + tag)
-
-	if tag == "work" {
-		UploadedFileData.FolderID = userObj.WorkFolder
-	} else if tag == "personal" {
-		UploadedFileData.FolderID = userObj.PersonalFolder
-	} else if tag == "academic" {
-		UploadedFileData.FolderID = userObj.AcademicFolder
-	}
-
-	if err := db.GetDB().Save(&UploadedFileData).Error; err != nil {
-		fmt.Println("Error while tagging : " + err.Error())
+		if err := db.GetDB().Save(&UploadedFileData).Error; err != nil {
+			fmt.Println("Error while tagging : " + err.Error())
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
