@@ -13,7 +13,7 @@ type UserSignInDTO struct {
 }
 
 type PrivateSessionSignInDTO struct {
-	SessionId uint `json:"session_id" binding:"required"`
+	SessionId string `json:"session_id" binding:"required"`
 }
 
 type VerfyAccountDTO struct {

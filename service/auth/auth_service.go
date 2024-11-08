@@ -92,7 +92,7 @@ func GetUserByUsername(username string) (models.User, error) {
 	return user, nil
 }
 
-func GetUserBySessionId(sessionId uint) (models.User, error) {
+func GetUserBySessionId(sessionId string) (models.User, error) {
 	var user models.User
 	if err := db.GetDB().Where("session_id = ?", sessionId).First(&user).Error; err != nil {
 		return user, errors.New("user not found")
