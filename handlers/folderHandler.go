@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"peer-store/db"
 	"peer-store/dto"
@@ -273,4 +274,48 @@ func EmptyTrash(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Trash emptied successfully"})
+}
+
+func SmartManage(c *gin.Context) {
+
+	id := c.Param("file_id")
+
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "id is required",
+		})
+		return
+	}
+
+	user, _ := c.Get("currentUser")
+	userObj := user.(models.User)
+
+	var file *models.File
+
+	if err := db.GetDB().Model(&models.File{}).Where("user_id = ?", user.(models.User).ID).Where("file_id = ?", id).Where("is_deleted = ?", false).First(&file).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	cat, err := service.TagFile(file)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if cat == "work" {
+		file.FolderID = userObj.WorkFolder
+	} else if cat == "personal" {
+		file.FolderID = userObj.PersonalFolder
+	} else if cat == "academic" {
+		file.FolderID = userObj.AcademicFolder
+	}
+
+	if err := db.GetDB().Save(&file).Error; err != nil {
+		fmt.Println("Error while tagging : " + err.Error())
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "File categorized successfully"})
+
 }

@@ -82,7 +82,6 @@ func SetupRouter() *gin.Engine {
 		fileApi.POST("/restore-file", handlers.RestoreFromTrash)
 		fileApi.GET("/empty-trash", handlers.EmptyTrash)
 		fileApi.GET("/get-user-fav", handlers.GetUserFavoritedFiles)
-
 	}
 
 	sessionApi := r.Group("/api/session")
@@ -121,6 +120,7 @@ func SetupRouter() *gin.Engine {
 		folderApi.DELETE("/delete-folder", handlers.DeleteFolder)
 		folderApi.POST("/move-folder-trash", handlers.MoveToTrash)
 		folderApi.GET("/get-folder-items/:id", handlers.GetFolderItems)
+		folderApi.GET("/smart-manage/:file_id", handlers.SmartManage)
 	}
 
 	analyticsApi := r.Group("/api/analytics")
