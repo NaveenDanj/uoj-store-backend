@@ -110,6 +110,27 @@ func CreateAdminUser(c *gin.Context) {
 		SpecialFolder: "SESSION_FOLDER",
 	}
 
+	workFolder := models.Folder{
+		Name:          "Work",
+		UserId:        newAdmin.ID,
+		ParentID:      &newFolder.ID,
+		SpecialFolder: "WORK_FOLDER",
+	}
+
+	personalFolder := models.Folder{
+		Name:          "Personal",
+		UserId:        newAdmin.ID,
+		ParentID:      &newFolder.ID,
+		SpecialFolder: "PERSONAL_FOLDER",
+	}
+
+	academicFolder := models.Folder{
+		Name:          "Academic",
+		UserId:        newAdmin.ID,
+		ParentID:      &newFolder.ID,
+		SpecialFolder: "ACADEMIC_FOLDER",
+	}
+
 	if err := db.GetDB().Create(&newFolder).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error while creating folder DB record"})
 		return
@@ -120,8 +141,26 @@ func CreateAdminUser(c *gin.Context) {
 		return
 	}
 
+	if err := db.GetDB().Create(&personalFolder).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error while creating folder DB record"})
+		return
+	}
+
+	if err := db.GetDB().Create(&workFolder).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error while creating folder DB record"})
+		return
+	}
+
+	if err := db.GetDB().Create(&academicFolder).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error while creating folder DB record"})
+		return
+	}
+
 	newAdmin.SessionFolder = sessionFolder.ID
 	newAdmin.RootFolder = newFolder.ID
+	newAdmin.WorkFolder = workFolder.ID
+	newAdmin.PersonalFolder = personalFolder.ID
+	newAdmin.AcademicFolder = academicFolder.ID
 	if err := db.GetDB().Save(&newAdmin).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error while updating user"})
 		return
