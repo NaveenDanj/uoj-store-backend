@@ -3,3 +3,4 @@ disk
 prod.db
 .env
 cmd/main.exe
+cmd/main.exe~
