@@ -112,21 +112,21 @@ func CreateAdminUser(c *gin.Context) {
 
 	workFolder := models.Folder{
 		Name:          "Work",
-		UserId:        user.ID,
+		UserId:        newAdmin.ID,
 		ParentID:      &newFolder.ID,
 		SpecialFolder: "WORK_FOLDER",
 	}
 
 	personalFolder := models.Folder{
 		Name:          "Personal",
-		UserId:        user.ID,
+		UserId:        newAdmin.ID,
 		ParentID:      &newFolder.ID,
 		SpecialFolder: "PERSONAL_FOLDER",
 	}
 
 	academicFolder := models.Folder{
 		Name:          "Academic",
-		UserId:        user.ID,
+		UserId:        newAdmin.ID,
 		ParentID:      &newFolder.ID,
 		SpecialFolder: "ACADEMIC_FOLDER",
 	}
