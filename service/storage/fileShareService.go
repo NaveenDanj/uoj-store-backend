@@ -7,6 +7,7 @@ import (
 	"peer-store/db"
 	"peer-store/dto"
 	"peer-store/models"
+	"peer-store/service"
 	"time"
 
 	"github.com/google/uuid"
@@ -102,6 +103,8 @@ func GenerateShareLink(fileShareDetails *dto.FileShareRequestDTO, user *models.U
 		if err := db.GetDB().Create(&userShare).Error; err != nil {
 			return "", err
 		}
+
+		service.CreateNewNotification(user.UserId, "A file has shared with you")
 
 	}
 
